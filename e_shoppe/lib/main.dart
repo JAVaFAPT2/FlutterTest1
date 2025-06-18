@@ -18,6 +18,14 @@ import 'theme/theme_provider.dart';
 import 'features/profile/profile_page.dart';
 import 'features/cart/cart_page.dart';
 import 'features/search/search_page.dart';
+import 'features/order/order_list_page.dart';
+import 'features/order/order_create_page.dart';
+import 'features/order/product_select_page.dart';
+import 'features/order/shipping_info_page.dart';
+import 'features/order/order_confirm_page.dart';
+import 'features/order/order_success_page.dart';
+import 'features/order/order_failure_page.dart';
+import 'features/order/order_detail_page.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -98,6 +106,14 @@ class EShoppeApp extends StatelessWidget {
                     '/profile': (_) => const ProfilePage(),
                     '/search': (_) => const SearchPage(),
                     '/cart': (_) => const CartPage(),
+                    '/orders': (_) => const OrderListPage(),
+                    '/order/create': (_) => const OrderCreatePage(),
+                    '/order/select-product': (_) => const ProductSelectPage(),
+                    '/order/shipping-info': (_) => const ShippingInfoPage(),
+                    '/order/confirm': (_) => const OrderConfirmPage(),
+                    '/order/success': (_) => const OrderSuccessPage(),
+                    '/order/failure': (_) => const OrderFailurePage(),
+                    '/order/detail': (_) => const OrderDetailPage(),
                   },
                 );
               });
