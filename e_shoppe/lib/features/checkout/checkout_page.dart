@@ -43,6 +43,22 @@ class _CheckoutPageState extends ConsumerState<CheckoutPage> {
         }
       }
     });
+
+    // Listen for draft changes and keep CartBloc in sync
+    ref.listen<OrderDraft>(orderDraftProvider, (prev, next) {
+      final cartBloc = context.read<CartBloc>();
+      // Rebuild cart state to mirror draft exactly.
+      cartBloc.add(const CartCleared());
+      for (final item in next.items) {
+        for (var i = 0; i < item.quantity; i++) {
+          cartBloc.add(CartItemAdded(item.product));
+        }
+        if (item.discountValue > 0) {
+          cartBloc.add(CartItemDiscountChanged(
+              productId: item.product.id, discount: item.discountValue));
+        }
+      }
+    });
   }
 
   @override
