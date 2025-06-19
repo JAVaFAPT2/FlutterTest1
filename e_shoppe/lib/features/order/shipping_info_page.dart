@@ -49,14 +49,13 @@ class _ShippingInfoPageState extends ConsumerState<ShippingInfoPage> {
             label: 'Quốc gia',
             value: draft.country ?? 'Việt Nam',
             items: const ['Việt Nam'],
-            onChanged: (v) =>
-                notifier.state = notifier.state.copyWith(country: v),
+            onChanged: (v) => notifier.setCountry(v),
           ),
           _DropdownField(
             label: 'Tỉnh thành phố',
             value: draft.city ?? 'Tp Hồ Chí Minh',
             items: const ['Tp Hồ Chí Minh', 'Hà Nội'],
-            onChanged: (v) => notifier.state = notifier.state.copyWith(city: v),
+            onChanged: (v) => notifier.setCity(v),
           ),
           // Địa chỉ
           Container(
@@ -68,8 +67,7 @@ class _ShippingInfoPageState extends ConsumerState<ShippingInfoPage> {
               controller: _addressCtrl,
               decoration: const InputDecoration(
                   labelText: 'Địa chỉ', border: InputBorder.none),
-              onChanged: (v) =>
-                  notifier.state = notifier.state.copyWith(address: v),
+              onChanged: (v) => notifier.setAddress(v),
             ),
           ),
           _SectionTitle('Khuyến mãi'),

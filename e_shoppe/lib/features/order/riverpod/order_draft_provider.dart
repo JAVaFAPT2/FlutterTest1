@@ -106,6 +106,19 @@ class OrderDraftNotifier extends StateNotifier<OrderDraft> {
   void clear() {
     state = const OrderDraft();
   }
+
+  // --- field setters ---
+  void setCountry(String? country) {
+    state = state.copyWith(country: country);
+  }
+
+  void setCity(String? city) {
+    state = state.copyWith(city: city);
+  }
+
+  void setAddress(String? address) {
+    state = state.copyWith(address: address);
+  }
 }
 
 final orderDraftProvider =
