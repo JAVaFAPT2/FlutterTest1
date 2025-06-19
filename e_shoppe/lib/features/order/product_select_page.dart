@@ -83,7 +83,15 @@ class _ProductSelectPageState extends ConsumerState<ProductSelectPage> {
                   itemBuilder: (context, index) {
                     final p = products[index];
                     return ListTile(
-                      leading: Image.network(p.imageUrl, width: 56, height: 56),
+                      leading: p.imageUrl.isNotEmpty
+                          ? Image.network(p.imageUrl,
+                              width: 56, height: 56, fit: BoxFit.cover)
+                          : Container(
+                              width: 56,
+                              height: 56,
+                              color: Colors.grey.shade300,
+                              child: const Icon(Icons.image_not_supported),
+                            ),
                       title: Text(p.title,
                           maxLines: 2, overflow: TextOverflow.ellipsis),
                       subtitle: Text('${p.price.toStringAsFixed(0)} đ'),

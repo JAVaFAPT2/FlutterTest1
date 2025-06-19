@@ -97,6 +97,12 @@ class OrderDraftNotifier extends StateNotifier<OrderDraft> {
         items: state.items.where((e) => e.product.id != productId).toList());
   }
 
+  /// Replace entire items list, e.g. when syncing from CartBloc.
+  void setItems(List<CartItem> items) {
+    final discountTotal = items.fold(0.0, (sum, e) => sum + e.discountValue);
+    state = state.copyWith(items: items, discount: discountTotal);
+  }
+
   void clear() {
     state = const OrderDraft();
   }

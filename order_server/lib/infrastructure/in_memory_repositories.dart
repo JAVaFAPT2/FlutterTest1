@@ -23,6 +23,7 @@ class InMemoryStore implements ProductRepository, OrderRepository {
       name: name,
       description: name,
       price: price,
+      imageUrl: 'https://picsum.photos/seed/$id/200/200',
     );
   }
 

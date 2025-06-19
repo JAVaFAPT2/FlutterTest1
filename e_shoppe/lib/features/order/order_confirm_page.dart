@@ -42,7 +42,15 @@ class OrderConfirmPage extends ConsumerWidget {
               },
               children: [
                 ...draft.items.map((e) => TableRow(children: [
-                      Image.network(e.product.imageUrl, width: 56, height: 56),
+                      e.product.imageUrl.isNotEmpty
+                          ? Image.network(e.product.imageUrl,
+                              width: 56, height: 56, fit: BoxFit.cover)
+                          : Container(
+                              width: 56,
+                              height: 56,
+                              color: Colors.grey.shade300,
+                              child: const Icon(Icons.image_not_supported),
+                            ),
                       Padding(
                         padding: const EdgeInsets.symmetric(
                             horizontal: 4, vertical: 6),
@@ -78,11 +86,20 @@ class OrderConfirmPage extends ConsumerWidget {
                     builder: (_) =>
                         const Center(child: CircularProgressIndicator()));
                 await repo.createOrder(draft.customer!, draft.items);
+                // dismiss loading dialog before navigation
+                if (context.mounted) Navigator.of(context).pop();
+
                 ref.read(orderDraftProvider.notifier).clear();
-                Navigator.of(context).pushNamedAndRemoveUntil(
-                    '/order/success', ModalRoute.withName('/orders'));
+
+                if (context.mounted) {
+                  Navigator.of(context).pushNamedAndRemoveUntil(
+                    '/order/success',
+                    ModalRoute.withName('/orders'),
+                  );
+                }
               } catch (e) {
-                Navigator.of(context).pop();
+                // ensure loading dialog is closed
+                if (context.mounted) Navigator.of(context).pop();
                 Navigator.of(context).pushNamed('/order/failure');
               }
             },

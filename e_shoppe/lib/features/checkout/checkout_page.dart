@@ -43,8 +43,17 @@ class _CheckoutPageState extends ConsumerState<CheckoutPage> {
         }
       }
     });
+  }
 
-    // Listen for draft changes and keep CartBloc in sync
+  @override
+  void dispose() {
+    _addressController.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    // Ref listener moved to build method to comply with Riverpod rules.
     ref.listen<OrderDraft>(orderDraftProvider, (prev, next) {
       final cartBloc = context.read<CartBloc>();
       // Rebuild cart state to mirror draft exactly.
@@ -59,16 +68,6 @@ class _CheckoutPageState extends ConsumerState<CheckoutPage> {
         }
       }
     });
-  }
-
-  @override
-  void dispose() {
-    _addressController.dispose();
-    super.dispose();
-  }
-
-  @override
-  Widget build(BuildContext context) {
     final authState = context.watch<AuthBloc>().state;
     if (authState.status == AuthStatus.authenticated &&
         authState.user?.address != null &&
@@ -106,12 +105,15 @@ class _CheckoutPageState extends ConsumerState<CheckoutPage> {
                           child: GestureDetector(
                             onTap: () async {
                               final selected = await Navigator.of(context).push(
-                                MaterialPageRoute(builder: (_) => const CustomerSearchPage()),
+                                MaterialPageRoute(
+                                    builder: (_) => const CustomerSearchPage()),
                               );
                               if (selected != null && selected is User) {
                                 // For now just show snackbar; integration can follow
                                 ScaffoldMessenger.of(context).showSnackBar(
-                                  SnackBar(content: Text('Đã chọn khách: ${selected.name}')),
+                                  SnackBar(
+                                      content: Text(
+                                          'Đã chọn khách: ${selected.name}')),
                                 );
                               }
                             },
@@ -148,7 +150,15 @@ class _CheckoutPageState extends ConsumerState<CheckoutPage> {
                         padding: const EdgeInsets.symmetric(horizontal: 16),
                         child: SectionCard(
                           title: 'Danh sách sản phẩm',
-                          trailing: const SizedBox.shrink(),
+                          trailing: TextButton.icon(
+                            onPressed: () {
+                              Navigator.of(context)
+                                  .pushNamed('/order/select-product');
+                            },
+                            icon: const Icon(Icons.add_circle_outline,
+                                color: Colors.green, size: 18),
+                            label: const Text('Thêm mới'),
+                          ),
                           child: _ProductSection(items: state.items),
                         ),
                       ),
@@ -183,6 +193,11 @@ class _CheckoutPageState extends ConsumerState<CheckoutPage> {
                     onTap: state.items.isEmpty
                         ? null
                         : () {
+                            // Sync latest cart items into OrderDraft before proceeding
+                            ref
+                                .read(orderDraftProvider.notifier)
+                                .setItems(state.items);
+
                             Navigator.of(context).push(
                               MaterialPageRoute(
                                   builder: (_) => const PaymentPage()),
@@ -262,8 +277,7 @@ class _CustomerInfoContent extends StatelessWidget {
                   decoration: const InputDecoration(
                     hintText: 'Địa chỉ giao hàng',
                     isDense: true,
-                    border: OutlineInputBorder(
-                        borderSide: BorderSide.none),
+                    border: OutlineInputBorder(borderSide: BorderSide.none),
                   ),
                 ),
               ),
@@ -295,17 +309,18 @@ class _ProductSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final cols = Responsive.gridColumnCount(context);
-    return GridView.builder(
+    if (items.isEmpty) {
+      return const Padding(
+        padding: EdgeInsets.all(12),
+        child: Text('Chưa có sản phẩm'),
+      );
+    }
+
+    return ListView.separated(
       shrinkWrap: true,
       physics: const NeverScrollableScrollPhysics(),
-      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-        crossAxisCount: cols,
-        mainAxisSpacing: 8,
-        crossAxisSpacing: 8,
-        childAspectRatio: cols == 1 ? 5 : 3,
-      ),
       itemCount: items.length,
+      separatorBuilder: (_, __) => const Divider(height: 1),
       itemBuilder: (_, i) => _ProductRow(item: items[i]),
     );
   }
@@ -320,70 +335,88 @@ class _ProductRow extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       padding: const EdgeInsets.all(8),
-      child: SizedBox(
-        width: double.infinity,
-        child: Row(
-          children: [
-            Container(width: 60, height: 60, color: Colors.green.shade200),
-            const SizedBox(width: 8),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(item.product.title,
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                      style: const TextStyle(
-                          color: Colors.orange, fontWeight: FontWeight.bold)),
-                  Text(_currency(item.product.price),
-                      style: const TextStyle(
-                          color: Colors.red, fontWeight: FontWeight.bold)),
-                ],
-              ),
-            ),
-            InkWell(
-              onTap: () {
-                context.read<CartBloc>().add(CartItemQuantityChanged(
-                    productId: item.product.id, delta: -1));
-              },
-              child: const Icon(Icons.remove_circle_outline, size: 20),
-            ),
-            Text(item.quantity.toString()),
-            InkWell(
-              onTap: () {
-                context.read<CartBloc>().add(CartItemQuantityChanged(
-                    productId: item.product.id, delta: 1));
-              },
-              child: const Icon(Icons.add_circle_outline, size: 20),
-            ),
-            // discount row
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
-              child: Row(
-                children: [
-                  const Text('Giảm giá:'),
-                  const SizedBox(width: 8),
-                  Expanded(
-                    child: TextField(
-                      keyboardType: TextInputType.number,
-                      decoration: const InputDecoration(
-                          isDense: true,
-                          contentPadding: EdgeInsets.all(6),
-                          hintText: '0'),
-                      onSubmitted: (value) {
-                        final discount = double.tryParse(value) ?? 0;
-                        context.read<CartBloc>().add(CartItemDiscountChanged(
-                            productId: item.product.id, discount: discount));
-                      },
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              item.product.imageUrl.isNotEmpty
+                  ? Image.network(item.product.imageUrl,
+                      width: 60, height: 60, fit: BoxFit.cover)
+                  : Container(
+                      width: 60,
+                      height: 60,
+                      color: Colors.grey.shade300,
+                      child: const Icon(Icons.image_not_supported),
                     ),
-                  ),
-                  const SizedBox(width: 4),
-                  const Text('vnd'),
-                ],
+              const SizedBox(width: 8),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(item.product.title,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: const TextStyle(
+                            color: Colors.orange, fontWeight: FontWeight.bold)),
+                    Text(_currency(item.product.price),
+                        style: const TextStyle(
+                            color: Colors.red, fontWeight: FontWeight.bold)),
+                  ],
+                ),
               ),
-            ),
-          ],
-        ),
+              InkWell(
+                onTap: () {
+                  context.read<CartBloc>().add(CartItemQuantityChanged(
+                      productId: item.product.id, delta: -1));
+                },
+                child: const Icon(Icons.remove_circle_outline, size: 20),
+              ),
+              const SizedBox(width: 4),
+              Text(item.quantity.toString()),
+              const SizedBox(width: 4),
+              InkWell(
+                onTap: () {
+                  context.read<CartBloc>().add(CartItemQuantityChanged(
+                      productId: item.product.id, delta: 1));
+                },
+                child: const Icon(Icons.add_circle_outline, size: 20),
+              ),
+            ],
+          ),
+          const SizedBox(height: 6),
+          Row(
+            children: [
+              const Text('Giảm giá:'),
+              const SizedBox(width: 8),
+              Expanded(
+                child: TextFormField(
+                  initialValue: item.discountValue > 0
+                      ? item.discountValue.toStringAsFixed(0)
+                      : '',
+                  keyboardType: TextInputType.number,
+                  decoration: const InputDecoration(
+                      isDense: true,
+                      contentPadding: EdgeInsets.all(6),
+                      hintText: '0'),
+                  onChanged: (value) {
+                    final discount = double.tryParse(value) ?? 0;
+                    // apply immediately as user types
+                    context.read<CartBloc>().add(CartItemDiscountChanged(
+                        productId: item.product.id, discount: discount));
+                  },
+                  onFieldSubmitted: (value) {
+                    final discount = double.tryParse(value) ?? 0;
+                    context.read<CartBloc>().add(CartItemDiscountChanged(
+                        productId: item.product.id, discount: discount));
+                  },
+                ),
+              ),
+              const SizedBox(width: 4),
+              const Text('vnd'),
+            ],
+          ),
+        ],
       ),
     );
   }

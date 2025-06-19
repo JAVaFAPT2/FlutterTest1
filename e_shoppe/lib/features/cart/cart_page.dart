@@ -66,8 +66,15 @@ class _CartListTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ListTile(
-      leading: Image.network(item.product.imageUrl,
-          width: 56, height: 56, fit: BoxFit.cover),
+      leading: item.product.imageUrl.isNotEmpty
+          ? Image.network(item.product.imageUrl,
+              width: 56, height: 56, fit: BoxFit.cover)
+          : Container(
+              width: 56,
+              height: 56,
+              color: Colors.grey.shade300,
+              child: const Icon(Icons.image_not_supported),
+            ),
       title: Text(item.product.title,
           maxLines: 1, overflow: TextOverflow.ellipsis),
       subtitle: Text('Subtotal: \$${item.subtotal.toStringAsFixed(2)}'),

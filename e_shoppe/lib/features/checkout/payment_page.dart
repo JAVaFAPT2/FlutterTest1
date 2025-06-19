@@ -108,14 +108,14 @@ class _PaymentPageState extends ConsumerState<PaymentPage> {
                       });
 
                       // Clear local state
-                      context.read<CartBloc>().add(const CartCleared());
+                    context.read<CartBloc>().add(const CartCleared());
                       ref.read(orderDraftProvider.notifier).clear();
 
-                      Navigator.of(context).pushAndRemoveUntil(
-                        MaterialPageRoute(
-                            builder: (_) => const OrderSuccessPage()),
-                        (route) => route.isFirst,
-                      );
+                    Navigator.of(context).pushAndRemoveUntil(
+                      MaterialPageRoute(
+                          builder: (_) => const OrderSuccessPage()),
+                      (route) => route.isFirst,
+                    );
                     } catch (e) {
                       ScaffoldMessenger.of(context).showSnackBar(SnackBar(
                           content: Text('Gửi đơn thất bại: $e')));

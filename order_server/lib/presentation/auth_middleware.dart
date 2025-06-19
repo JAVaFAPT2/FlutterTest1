@@ -7,13 +7,12 @@ Middleware jwtMiddleware() {
   final secret = Platform.environment['JWT_SECRET'] ?? 'secret';
   return (innerHandler) {
     return (Request request) async {
-      // Allow unauthenticated access to the public "GET /products" endpoint.
-      // Note: `request.url.path` never contains a leading slash, whereas
-      // `requestedUri.path` usually does (e.g. "/products"). Using the
-      // slash-less `url.path` avoids mismatches that caused the previous
-      // logic to fail and return 401.
-      if (request.method == 'GET' &&
-          request.url.path.startsWith('products')) {
+      // Public endpoints that don't require auth. Add more as needed.
+      final isPublic = (request.method == 'GET' &&
+              request.url.path.startsWith('products')) ||
+          (request.method == 'POST' && request.url.path.startsWith('orders'));
+
+      if (isPublic) {
         return innerHandler(request);
       }
 
