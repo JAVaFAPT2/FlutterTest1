@@ -52,7 +52,7 @@ dependencies:
 
   # Media picking
   image_picker: ^1.0.5
-  file_picker: ^6.1.1
+  # file_picker was removed as it is unused and caused plugin validation errors
   flutter_riverpod: ^2.4.6
   flutter_local_notifications: ^16.2.0
   url_launcher: ^6.2.1

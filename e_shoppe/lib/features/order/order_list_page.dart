@@ -89,17 +89,3 @@ class OrderListPage extends ConsumerWidget {
     );
   }
 }
-
-class _MockOrder {
-  final String id;
-  final DateTime date;
-  final String status;
-  final double total;
-  final int quantity;
-  const _MockOrder(
-      {required this.id,
-      required this.date,
-      required this.status,
-      required this.total,
-      required this.quantity});
-}

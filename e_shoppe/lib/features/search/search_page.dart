@@ -46,7 +46,6 @@ class SearchPage extends ConsumerWidget {
                         ref.read(searchProvider.notifier).loadMore(),
                   );
                 case SearchStatus.initial:
-                default:
                   return const SizedBox.shrink();
               }
             }(),
