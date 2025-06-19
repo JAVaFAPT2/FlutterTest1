@@ -29,7 +29,11 @@ class Handlers {
     final itemsJson = data['items'] as List<dynamic>;
     final items = <OrderItem>[];
     for (final itemJson in itemsJson) {
-      final productId = itemJson['productId'] as String;
+      final productIdStr = itemJson['productId'].toString();
+      final productId = int.tryParse(productIdStr);
+      if (productId == null) {
+        return Response(400, body: 'Invalid productId');
+      }
       final qty = itemJson['quantity'] as int;
       final product = await productRepo.getById(productId);
       if (product == null) {

@@ -49,7 +49,7 @@ class PostgresStore implements ProductRepository, OrderRepository {
   }
 
   @override
-  Future<Product?> getById(String id) async {
+  Future<Product?> getById(int id) async {
     final rows = await _conn.mappedResultsQuery(
         'SELECT * FROM products WHERE id=@id',
         substitutionValues: {'id': id});

@@ -1,7 +1,5 @@
-import 'dart:convert';
-
 class Product {
-  final String id;
+  final int id;
   final String name;
   final String description;
   final double price;
@@ -15,14 +13,17 @@ class Product {
 
   Map<String, dynamic> toJson() => {
     'id': id,
+    'title': name,
     'name': name,
     'description': description,
     'price': price,
   };
 
   factory Product.fromJson(Map<String, dynamic> json) => Product(
-    id: json['id'] as String,
-    name: json['name'] as String,
+    id: json['id'] is int
+        ? json['id'] as int
+        : int.parse(json['id'].toString()),
+    name: (json['title'] ?? json['name']) as String,
     description: json['description'] as String,
     price: (json['price'] as num).toDouble(),
   );

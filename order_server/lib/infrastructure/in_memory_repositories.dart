@@ -1,4 +1,3 @@
-import 'dart:collection';
 import 'package:uuid/uuid.dart';
 
 import '../domain/entities.dart';
@@ -6,7 +5,8 @@ import '../domain/repositories.dart';
 
 class InMemoryStore implements ProductRepository, OrderRepository {
   final _uuid = const Uuid();
-  final Map<String, Product> _products = {};
+  int _nextProductId = 1;
+  final Map<int, Product> _products = {};
   final Map<String, Order> _orders = {};
 
   InMemoryStore() {
@@ -17,7 +17,7 @@ class InMemoryStore implements ProductRepository, OrderRepository {
   }
 
   void _addProduct(String name, double price) {
-    final id = _uuid.v4();
+    final id = _nextProductId++;
     _products[id] = Product(
       id: id,
       name: name,
@@ -31,7 +31,7 @@ class InMemoryStore implements ProductRepository, OrderRepository {
   Future<List<Product>> getAll() async => _products.values.toList();
 
   @override
-  Future<Product?> getById(String id) async => _products[id];
+  Future<Product?> getById(int id) async => _products[id];
 
   // OrderRepository
   @override

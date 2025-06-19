@@ -2,7 +2,7 @@ import 'entities.dart';
 
 abstract class ProductRepository {
   Future<List<Product>> getAll();
-  Future<Product?> getById(String id);
+  Future<Product?> getById(int id);
 }
 
 abstract class OrderRepository {
