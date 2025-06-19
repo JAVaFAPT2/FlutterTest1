@@ -9,6 +9,7 @@ class OrderDraft {
   final String? country;
   final String? city;
   final String? address;
+  final String? phone;
   final String? paymentMethod;
   final double discount;
 
@@ -28,6 +29,7 @@ class OrderDraft {
     this.country,
     this.city,
     this.address,
+    this.phone,
     this.paymentMethod,
     this.discount = 0,
   });
@@ -39,6 +41,7 @@ class OrderDraft {
     String? country,
     String? city,
     String? address,
+    String? phone,
     String? paymentMethod,
     double? discount,
   }) {
@@ -49,6 +52,7 @@ class OrderDraft {
       country: country ?? this.country,
       city: city ?? this.city,
       address: address ?? this.address,
+      phone: phone ?? this.phone,
       paymentMethod: paymentMethod ?? this.paymentMethod,
       discount: discount ?? this.discount,
     );
@@ -118,6 +122,10 @@ class OrderDraftNotifier extends StateNotifier<OrderDraft> {
 
   void setAddress(String? address) {
     state = state.copyWith(address: address);
+  }
+
+  void setPhone(String? phone) {
+    state = state.copyWith(phone: phone);
   }
 }
 

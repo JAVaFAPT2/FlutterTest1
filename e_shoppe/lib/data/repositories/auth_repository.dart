@@ -7,18 +7,49 @@ import '../models/user.dart';
 
 class AuthRepository {
   final fb.FirebaseAuth _auth = fb.FirebaseAuth.instance;
+  final _firestore = FirebaseFirestore.instance;
+
+  Future<User> _buildUser(fb.User u) async {
+    Map<String, dynamic>? data;
+    try {
+      final doc = await _firestore.collection('profiles').doc(u.uid).get();
+      data = doc.data();
+    } on FirebaseException catch (e) {
+      // If the client is offline or the doc isn't cached yet, fall back to
+      // an empty map so login still succeeds.
+      if (e.code == 'unavailable') {
+        try {
+          final doc = await _firestore
+              .collection('profiles')
+              .doc(u.uid)
+              .get(const GetOptions(source: Source.cache));
+          data = doc.data();
+        } catch (_) {
+          data = null;
+        }
+      } else {
+        rethrow;
+      }
+    }
+    return User(
+      id: u.uid,
+      email: u.email ?? '',
+      name: u.displayName ?? '',
+      address: data?['address'] as String?,
+      phone: data?['phone'] as String?,
+    );
+  }
 
   Future<User> currentUser() async {
     final u = _auth.currentUser;
     if (u == null) return User.empty();
-    return User(id: u.uid, email: u.email ?? '', name: u.displayName ?? '');
+    return _buildUser(u);
   }
 
   Future<User> login({required String email, required String password}) async {
     final cred = await _auth.signInWithEmailAndPassword(
         email: email, password: password);
-    final u = cred.user!;
-    return User(id: u.uid, email: u.email ?? '', name: u.displayName ?? '');
+    return _buildUser(cred.user!);
   }
 
   Future<User> register({
@@ -29,15 +60,15 @@ class AuthRepository {
     final cred = await _auth.createUserWithEmailAndPassword(
         email: email, password: password);
     await cred.user!.updateDisplayName(name);
-    final u = cred.user!;
-    return User(id: u.uid, email: u.email ?? '', name: name);
+    return _buildUser(cred.user!);
   }
 
   Future<void> logout() async {
     await _auth.signOut();
   }
 
-  Future<User?> updateProfile({String? name, String? address}) async {
+  Future<User?> updateProfile(
+      {String? name, String? address, String? phone}) async {
     final u = _auth.currentUser;
     if (u == null) return null;
 
@@ -45,17 +76,13 @@ class AuthRepository {
       await u.updateDisplayName(name);
     }
 
-    if (address != null) {
+    if (address != null || phone != null) {
       await FirebaseFirestore.instance
           .collection('profiles')
           .doc(u.uid)
-          .set({'address': address}, SetOptions(merge: true));
+          .set({'address': address, 'phone': phone}, SetOptions(merge: true));
     }
 
-    return User(
-        id: u.uid,
-        email: u.email ?? '',
-        name: u.displayName ?? '',
-        address: address);
+    return _buildUser(u);
   }
 }

@@ -15,8 +15,13 @@ class OrderAppBar extends StatelessWidget implements PreferredSizeWidget {
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              // Placeholder logo
-              const Icon(Icons.image, color: Colors.white),
+              // Back arrow or placeholder logo
+              Navigator.canPop(context)
+                  ? IconButton(
+                      icon: const Icon(Icons.arrow_back, color: Colors.white),
+                      onPressed: () => Navigator.of(context).pop(),
+                    )
+                  : const Icon(Icons.image, color: Colors.white),
               const CircleAvatar(
                 radius: 18,
                 backgroundColor: Colors.white,

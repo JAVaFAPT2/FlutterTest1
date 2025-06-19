@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'package:flutter/foundation.dart';
 
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
@@ -27,6 +28,7 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
 
   late final TextEditingController _nameCtrl;
   late final TextEditingController _addressCtrl;
+  late final TextEditingController _phoneCtrl;
 
   Future<void> _pickAndUpload() async {
     final XFile? picked =
@@ -62,19 +64,23 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
     final user = context.read<AuthBloc>().state.user;
     _nameCtrl = TextEditingController(text: user?.name ?? '');
     _addressCtrl = TextEditingController(text: user?.address ?? '');
+    _phoneCtrl = TextEditingController(text: user?.phone ?? '');
   }
 
   @override
   void dispose() {
     _nameCtrl.dispose();
     _addressCtrl.dispose();
+    _phoneCtrl.dispose();
     super.dispose();
   }
 
   Future<void> _saveProfile() async {
     final repo = context.read<AuthRepository>();
     final updated = await repo.updateProfile(
-        name: _nameCtrl.text.trim(), address: _addressCtrl.text.trim());
+        name: _nameCtrl.text.trim(),
+        address: _addressCtrl.text.trim(),
+        phone: _phoneCtrl.text.trim());
     if (updated != null) {
       context.read<AuthBloc>().add(LoggedIn(updated));
       if (mounted) {
@@ -88,92 +94,105 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: const Text('Profile')),
-      body: Center(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            CircleAvatar(
-              radius: 60,
-              backgroundImage:
-                  _avatarUrl != null ? NetworkImage(_avatarUrl!) : null,
-              child: _avatarUrl == null
-                  ? const Icon(Icons.person, size: 60)
-                  : null,
-            ),
-            const SizedBox(height: 20),
-            _uploading
-                ? const CircularProgressIndicator()
-                : ElevatedButton.icon(
-                    onPressed: _pickAndUpload,
-                    icon: const Icon(Icons.image),
-                    label: const Text('Change Avatar'),
-                  ),
-            const SizedBox(height: 12),
-            ElevatedButton(
-              onPressed: () {
-                Navigator.of(context).push(MaterialPageRoute(
-                    builder: (_) => const RiverpodCounterPage()));
-              },
-              child: const Text('Open Riverpod Counter Demo'),
-            ),
-            const SizedBox(height: 12),
-            ElevatedButton(
-              onPressed: () {
-                Navigator.of(context).push(MaterialPageRoute(
-                    builder: (_) => const RiverpodCartPage()));
-              },
-              child: const Text('Open Riverpod Cart Demo'),
-            ),
-            const SizedBox(height: 20),
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 24),
-              child: Column(
-                children: [
-                  TextField(
-                    controller: _nameCtrl,
-                    decoration: const InputDecoration(labelText: 'Name'),
-                  ),
-                  const SizedBox(height: 12),
-                  TextField(
-                    controller: _addressCtrl,
-                    decoration: const InputDecoration(labelText: 'Address'),
-                  ),
-                  const SizedBox(height: 20),
-                  ElevatedButton.icon(
-                      onPressed: _saveProfile,
-                      icon: const Icon(Icons.save),
-                      label: const Text('Save Profile')),
-                  const SizedBox(height: 20),
-                  FutureBuilder<bool>(
-                    future: NotificationService.instance.isPromoSubscribed(),
-                    builder: (context, snapshot) {
-                      final subscribed = snapshot.data ?? false;
-                      return SwitchListTile(
-                        title: const Text('Receive Promotions'),
-                        value: subscribed,
-                        onChanged: (val) async {
-                          await NotificationService.instance
-                              .setPromoSubscription(val);
-                          setState(() {});
-                        },
-                      );
-                    },
-                  ),
-                  const SizedBox(height: 20),
-                  Consumer(builder: (context, ref, _) {
-                    final isDark =
-                        ref.watch(themeModeProvider) == ThemeMode.dark;
-                    return SwitchListTile(
-                      title: const Text('Dark Mode'),
-                      value: isDark,
-                      onChanged: (_) =>
-                          ref.read(themeModeProvider.notifier).toggle(),
-                    );
-                  }),
-                ],
+      body: SafeArea(
+        child: SingleChildScrollView(
+          padding: const EdgeInsets.symmetric(vertical: 16),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              CircleAvatar(
+                radius: 60,
+                backgroundImage:
+                    _avatarUrl != null ? NetworkImage(_avatarUrl!) : null,
+                child: _avatarUrl == null
+                    ? const Icon(Icons.person, size: 60)
+                    : null,
               ),
-            ),
-          ],
+              const SizedBox(height: 20),
+              _uploading
+                  ? const CircularProgressIndicator()
+                  : ElevatedButton.icon(
+                      onPressed: _pickAndUpload,
+                      icon: const Icon(Icons.image),
+                      label: const Text('Change Avatar'),
+                    ),
+              const SizedBox(height: 12),
+              if (kDebugMode) ...[
+                ElevatedButton(
+                  onPressed: () {
+                    Navigator.of(context).push(MaterialPageRoute(
+                        builder: (_) => const RiverpodCounterPage()));
+                  },
+                  child: const Text('Open Riverpod Counter Demo'),
+                ),
+                const SizedBox(height: 12),
+                ElevatedButton(
+                  onPressed: () {
+                    Navigator.of(context).push(MaterialPageRoute(
+                        builder: (_) => const RiverpodCartPage()));
+                  },
+                  child: const Text('Open Riverpod Cart Demo'),
+                ),
+                const SizedBox(height: 12),
+              ],
+              const SizedBox(height: 20),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 24),
+                child: Column(
+                  children: [
+                    TextField(
+                      controller: _nameCtrl,
+                      decoration: const InputDecoration(labelText: 'Name'),
+                    ),
+                    const SizedBox(height: 12),
+                    TextField(
+                      controller: _phoneCtrl,
+                      keyboardType: TextInputType.phone,
+                      decoration: const InputDecoration(labelText: 'Phone'),
+                    ),
+                    const SizedBox(height: 12),
+                    TextField(
+                      controller: _addressCtrl,
+                      decoration: const InputDecoration(labelText: 'Address'),
+                    ),
+                    const SizedBox(height: 20),
+                    ElevatedButton.icon(
+                        onPressed: _saveProfile,
+                        icon: const Icon(Icons.save),
+                        label: const Text('Save Profile')),
+                    const SizedBox(height: 20),
+                    FutureBuilder<bool>(
+                      future: NotificationService.instance.isPromoSubscribed(),
+                      builder: (context, snapshot) {
+                        final subscribed = snapshot.data ?? false;
+                        return SwitchListTile(
+                          title: const Text('Receive Promotions'),
+                          value: subscribed,
+                          onChanged: (val) async {
+                            await NotificationService.instance
+                                .setPromoSubscription(val);
+                            setState(() {});
+                          },
+                        );
+                      },
+                    ),
+                    const SizedBox(height: 20),
+                    Consumer(builder: (context, ref, _) {
+                      final isDark =
+                          ref.watch(themeModeProvider) == ThemeMode.dark;
+                      return SwitchListTile(
+                        title: const Text('Dark Mode'),
+                        value: isDark,
+                        onChanged: (_) =>
+                            ref.read(themeModeProvider.notifier).toggle(),
+                      );
+                    }),
+                  ],
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );

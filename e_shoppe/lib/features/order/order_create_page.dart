@@ -147,7 +147,8 @@ class _CustomerInfoCard extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final customer = ref.watch(orderDraftProvider).customer;
+    final draft = ref.watch(orderDraftProvider);
+    final customer = draft.customer;
     if (customer == null) {
       return const SizedBox();
     }
@@ -159,10 +160,11 @@ class _CustomerInfoCard extends ConsumerWidget {
       child: Column(
         children: [
           _row(Icons.person_outline, customer.name),
-          _row(Icons.call, customer.phone ?? ''),
+          _row(Icons.call, draft.phone ?? customer.phone ?? ''),
           _row(Icons.email_outlined, customer.email),
-          if (customer.address != null)
-            _row(Icons.location_on_outlined, customer.address!),
+          if ((draft.address ?? customer.address) != null)
+            _row(Icons.location_on_outlined,
+                (draft.address ?? customer.address)!),
         ],
       ),
     );
@@ -271,7 +273,8 @@ class _ProductItemTile extends ConsumerWidget {
                   const SizedBox(height: 4),
                   Row(
                     children: [
-                      _QtyButton(icon: Icons.remove, onTap: () => changeQty(-1)),
+                      _QtyButton(
+                          icon: Icons.remove, onTap: () => changeQty(-1)),
                       const SizedBox(width: 4),
                       Text(item.quantity.toString()),
                       const SizedBox(width: 4),

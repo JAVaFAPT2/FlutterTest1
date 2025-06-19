@@ -12,6 +12,7 @@ class ShippingInfoPage extends ConsumerStatefulWidget {
 
 class _ShippingInfoPageState extends ConsumerState<ShippingInfoPage> {
   late final TextEditingController _addressCtrl;
+  late final TextEditingController _phoneCtrl;
   late final TextEditingController _promoCtrl;
 
   @override
@@ -20,12 +21,14 @@ class _ShippingInfoPageState extends ConsumerState<ShippingInfoPage> {
     final draft = ref.read(orderDraftProvider);
     _addressCtrl = TextEditingController(text: draft.address ?? '');
     _promoCtrl = TextEditingController();
+    _phoneCtrl = TextEditingController(text: draft.phone ?? '');
   }
 
   @override
   void dispose() {
     _addressCtrl.dispose();
     _promoCtrl.dispose();
+    _phoneCtrl.dispose();
     super.dispose();
   }
 
@@ -36,6 +39,9 @@ class _ShippingInfoPageState extends ConsumerState<ShippingInfoPage> {
     // Keep controller text in sync when provider changes from elsewhere.
     if (_addressCtrl.text != (draft.address ?? '')) {
       _addressCtrl.text = draft.address ?? '';
+    }
+    if (_phoneCtrl.text != (draft.phone ?? '')) {
+      _phoneCtrl.text = draft.phone ?? '';
     }
 
     return Scaffold(
@@ -56,6 +62,20 @@ class _ShippingInfoPageState extends ConsumerState<ShippingInfoPage> {
             value: draft.city ?? 'Tp Hồ Chí Minh',
             items: const ['Tp Hồ Chí Minh', 'Hà Nội'],
             onChanged: (v) => notifier.setCity(v),
+          ),
+          // Số điện thoại
+          Container(
+            margin: const EdgeInsets.only(bottom: 6),
+            padding: const EdgeInsets.symmetric(horizontal: 8),
+            decoration: BoxDecoration(
+                color: Colors.white, borderRadius: BorderRadius.circular(4)),
+            child: TextField(
+              controller: _phoneCtrl,
+              keyboardType: TextInputType.phone,
+              decoration: const InputDecoration(
+                  labelText: 'Số điện thoại', border: InputBorder.none),
+              onChanged: (v) => notifier.setPhone(v),
+            ),
           ),
           // Địa chỉ
           Container(

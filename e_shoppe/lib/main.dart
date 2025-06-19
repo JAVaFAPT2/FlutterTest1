@@ -85,12 +85,11 @@ class EShoppeApp extends StatelessWidget {
           return BlocBuilder<AuthBloc, AuthState>(
             builder: (context, state) {
               return Consumer(builder: (context, ref, _) {
-                final themeMode = ref.watch(themeModeProvider);
                 return MaterialApp(
                   title: 'E-Shoppe',
                   theme: AppTheme.light(),
                   darkTheme: AppTheme.dark(),
-                  themeMode: themeMode,
+                  themeMode: ThemeMode.light,
                   home: () {
                     if (state.status == AuthStatus.authenticated) {
                       return const HomeShell();
