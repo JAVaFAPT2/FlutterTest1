@@ -11,7 +11,7 @@ import 'package:firebase_messaging/firebase_messaging.dart';
 import 'data/repositories/auth_repository.dart';
 import 'features/auth/bloc/auth_bloc.dart';
 import 'features/auth/login_page.dart';
-import 'features/home/home_shell.dart';
+import 'package:e_shoppe/features/home/home_shell.dart';
 import 'features/cart/bloc/cart_bloc.dart';
 import 'theme/app_theme.dart';
 import 'theme/theme_provider.dart';

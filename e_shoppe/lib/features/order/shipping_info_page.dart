@@ -3,13 +3,41 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'order_app_bar.dart';
 import 'riverpod/order_draft_provider.dart';
 
-class ShippingInfoPage extends ConsumerWidget {
+class ShippingInfoPage extends ConsumerStatefulWidget {
   const ShippingInfoPage({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<ShippingInfoPage> createState() => _ShippingInfoPageState();
+}
+
+class _ShippingInfoPageState extends ConsumerState<ShippingInfoPage> {
+  late final TextEditingController _addressCtrl;
+  late final TextEditingController _promoCtrl;
+
+  @override
+  void initState() {
+    super.initState();
+    final draft = ref.read(orderDraftProvider);
+    _addressCtrl = TextEditingController(text: draft.address ?? '');
+    _promoCtrl = TextEditingController();
+  }
+
+  @override
+  void dispose() {
+    _addressCtrl.dispose();
+    _promoCtrl.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
     final draft = ref.watch(orderDraftProvider);
     final notifier = ref.read(orderDraftProvider.notifier);
+    // Keep controller text in sync when provider changes from elsewhere.
+    if (_addressCtrl.text != (draft.address ?? '')) {
+      _addressCtrl.text = draft.address ?? '';
+    }
+
     return Scaffold(
       backgroundColor: const Color(0xFFE0E0E0),
       appBar: const OrderAppBar(),
@@ -30,17 +58,26 @@ class ShippingInfoPage extends ConsumerWidget {
             items: const ['Tp Hồ Chí Minh', 'Hà Nội'],
             onChanged: (v) => notifier.state = notifier.state.copyWith(city: v),
           ),
-          _TextField(
-            label: 'Địa chỉ',
-            initial: draft.address ?? '',
-            onChanged: (v) =>
-                notifier.state = notifier.state.copyWith(address: v),
+          // Địa chỉ
+          Container(
+            margin: const EdgeInsets.only(bottom: 6),
+            padding: const EdgeInsets.symmetric(horizontal: 8),
+            decoration: BoxDecoration(
+                color: Colors.white, borderRadius: BorderRadius.circular(4)),
+            child: TextField(
+              controller: _addressCtrl,
+              decoration: const InputDecoration(
+                  labelText: 'Địa chỉ', border: InputBorder.none),
+              onChanged: (v) =>
+                  notifier.state = notifier.state.copyWith(address: v),
+            ),
           ),
           _SectionTitle('Khuyến mãi'),
           Row(
             children: [
               Expanded(
                 child: TextField(
+                  controller: _promoCtrl,
                   decoration: InputDecoration(
                     prefixIcon: const Icon(Icons.card_giftcard),
                     hintText: 'Mã khuyến mãi',
@@ -52,7 +89,11 @@ class ShippingInfoPage extends ConsumerWidget {
               ),
               const SizedBox(width: 8),
               ElevatedButton(
-                onPressed: () {},
+                onPressed: () {
+                  // TODO: implement promo validation logic
+                  ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+                      content: Text('Chưa triển khai kiểm tra mã khuyến mãi')));
+                },
                 style: ElevatedButton.styleFrom(
                     backgroundColor: const Color(0xFF0062FF)),
                 child: const Text('Áp dụng'),
@@ -139,28 +180,6 @@ class _DropdownField extends StatelessWidget {
         items: items
             .map((e) => DropdownMenuItem(value: e, child: Text(e)))
             .toList(),
-        onChanged: onChanged,
-      ),
-    );
-  }
-}
-
-class _TextField extends StatelessWidget {
-  final String label;
-  final String initial;
-  final ValueChanged<String> onChanged;
-  const _TextField(
-      {required this.label, required this.initial, required this.onChanged});
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      margin: const EdgeInsets.only(bottom: 6),
-      padding: const EdgeInsets.symmetric(horizontal: 8),
-      decoration: BoxDecoration(
-          color: Colors.white, borderRadius: BorderRadius.circular(4)),
-      child: TextFormField(
-        initialValue: initial,
-        decoration: InputDecoration(labelText: label, border: InputBorder.none),
         onChanged: onChanged,
       ),
     );

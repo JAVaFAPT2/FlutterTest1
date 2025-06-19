@@ -40,7 +40,7 @@ class PostgresStore implements ProductRepository, OrderRepository {
     return rows.map((row) {
       final r = row['products']!;
       return Product(
-        id: r['id'].toString(),
+        id: (r['id'] as num).toInt(),
         name: r['name'] as String,
         description: r['description'] as String,
         price: (r['price'] as num).toDouble(),
@@ -56,7 +56,7 @@ class PostgresStore implements ProductRepository, OrderRepository {
     if (rows.isEmpty) return null;
     final r = rows.first['products']!;
     return Product(
-      id: r['id'].toString(),
+      id: (r['id'] as num).toInt(),
       name: r['name'] as String,
       description: r['description'] as String,
       price: (r['price'] as num).toDouble(),
@@ -102,7 +102,7 @@ class PostgresStore implements ProductRepository, OrderRepository {
       final p = row['p'] ?? row['products']!;
       final qty = row['oi']?['quantity'] ?? row['order_items']!['quantity'];
       final product = Product(
-        id: p['id'].toString(),
+        id: (p['id'] as num).toInt(),
         name: p['name'] as String,
         description: p['description'] as String,
         price: (p['price'] as num).toDouble(),
@@ -133,7 +133,7 @@ class PostgresStore implements ProductRepository, OrderRepository {
         final p = r['p'] ?? r['products']!;
         final qty = r['oi']?['quantity'] ?? r['order_items']!['quantity'];
         final product = Product(
-          id: p['id'].toString(),
+          id: (p['id'] as num).toInt(),
           name: p['name'] as String,
           description: p['description'] as String,
           price: (p['price'] as num).toDouble(),

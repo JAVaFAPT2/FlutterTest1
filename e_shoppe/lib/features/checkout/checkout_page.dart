@@ -2,6 +2,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../data/models/cart_item.dart';
 import '../cart/bloc/cart_bloc.dart';
@@ -11,16 +12,38 @@ import '../../shared/widgets/blue_header.dart';
 import '../../shared/widgets/section_card.dart';
 import 'payment_page.dart';
 import '../../shared/responsive.dart';
+import 'package:e_shoppe/features/order/customer_search_page.dart';
+import '../../data/models/user.dart';
+import '../order/riverpod/order_draft_provider.dart';
 
-class CheckoutPage extends StatefulWidget {
+class CheckoutPage extends ConsumerStatefulWidget {
   const CheckoutPage({super.key});
 
   @override
-  State<CheckoutPage> createState() => _CheckoutPageState();
+  ConsumerState<CheckoutPage> createState() => _CheckoutPageState();
 }
 
-class _CheckoutPageState extends State<CheckoutPage> {
+class _CheckoutPageState extends ConsumerState<CheckoutPage> {
   final _addressController = TextEditingController();
+
+  @override
+  void initState() {
+    super.initState();
+    // Defer until widgets are built and Providers are available.
+    Future.microtask(() {
+      final cartBloc = context.read<CartBloc>();
+      if (cartBloc.state.items.isEmpty) {
+        final draft = ref.read(orderDraftProvider);
+        if (draft.items.isNotEmpty) {
+          for (final item in draft.items) {
+            for (var i = 0; i < item.quantity; i++) {
+              cartBloc.add(CartItemAdded(item.product));
+            }
+          }
+        }
+      }
+    });
+  }
 
   @override
   void dispose() {
@@ -64,18 +87,34 @@ class _CheckoutPageState extends State<CheckoutPage> {
                             borderRadius: BorderRadius.circular(8),
                             border: Border.all(color: Colors.grey.shade400),
                           ),
-                          child: Row(
-                            children: const [
-                              SizedBox(width: 12),
-                              Icon(Icons.search, color: Colors.grey),
-                              SizedBox(width: 8),
-                              Expanded(
-                                child: Text('Nhập SĐT/ Mã thẻ/ Tên khách hàng',
-                                    style: TextStyle(color: Colors.grey)),
-                              ),
-                              Icon(Icons.close, color: Colors.grey),
-                              SizedBox(width: 12),
-                            ],
+                          child: GestureDetector(
+                            onTap: () async {
+                              final selected = await Navigator.of(context).push(
+                                MaterialPageRoute(builder: (_) => const CustomerSearchPage()),
+                              );
+                              if (selected != null && selected is User) {
+                                // For now just show snackbar; integration can follow
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(content: Text('Đã chọn khách: ${selected.name}')),
+                                );
+                              }
+                            },
+                            behavior: HitTestBehavior.opaque,
+                            child: Row(
+                              children: const [
+                                SizedBox(width: 12),
+                                Icon(Icons.search, color: Colors.grey),
+                                SizedBox(width: 8),
+                                Expanded(
+                                  child: Text(
+                                    'Nhập SĐT/ Mã thẻ/ Tên khách hàng',
+                                    style: TextStyle(color: Colors.grey),
+                                  ),
+                                ),
+                                Icon(Icons.chevron_right, color: Colors.grey),
+                                SizedBox(width: 12),
+                              ],
+                            ),
                           ),
                         ),
                       ),
@@ -195,7 +234,26 @@ class _CustomerInfoContent extends StatelessWidget {
         _infoRow(icon: Icons.person, text: user?.name ?? ''),
         _infoRow(icon: Icons.phone, text: user?.id ?? ''),
         _infoRow(icon: Icons.email, text: user?.email ?? ''),
-        _infoRow(icon: Icons.location_on, text: addressController.text),
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+          child: Row(
+            children: [
+              const Icon(Icons.location_on, color: Colors.green),
+              const SizedBox(width: 12),
+              Expanded(
+                child: TextField(
+                  controller: addressController,
+                  decoration: const InputDecoration(
+                    hintText: 'Địa chỉ giao hàng',
+                    isDense: true,
+                    border: OutlineInputBorder(
+                        borderSide: BorderSide.none),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
       ],
     );
   }
@@ -246,73 +304,70 @@ class _ProductRow extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       padding: const EdgeInsets.all(8),
-      child: Row(
-        children: [
-          Container(width: 60, height: 60, color: Colors.green.shade200),
-          const SizedBox(width: 8),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(item.product.title,
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                    style: const TextStyle(
-                        color: Colors.orange, fontWeight: FontWeight.bold)),
-                Text(_currency(item.product.price),
-                    style: const TextStyle(
-                        color: Colors.red, fontWeight: FontWeight.bold)),
-              ],
+      child: SizedBox(
+        width: double.infinity,
+        child: Row(
+          children: [
+            Container(width: 60, height: 60, color: Colors.green.shade200),
+            const SizedBox(width: 8),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(item.product.title,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: const TextStyle(
+                          color: Colors.orange, fontWeight: FontWeight.bold)),
+                  Text(_currency(item.product.price),
+                      style: const TextStyle(
+                          color: Colors.red, fontWeight: FontWeight.bold)),
+                ],
+              ),
             ),
-          ),
-          Row(
-            children: [
-              IconButton(
-                iconSize: 20,
-                icon: const Icon(Icons.remove_circle_outline),
-                onPressed: () {
-                  context.read<CartBloc>().add(CartItemQuantityChanged(
-                      productId: item.product.id, delta: -1));
-                },
-              ),
-              Text(item.quantity.toString()),
-              IconButton(
-                iconSize: 20,
-                icon: const Icon(Icons.add_circle_outline),
-                onPressed: () {
-                  context.read<CartBloc>().add(CartItemQuantityChanged(
-                      productId: item.product.id, delta: 1));
-                },
-              ),
-            ],
-          ),
-          // discount row
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
-            child: Row(
-              children: [
-                const Text('Giảm giá:'),
-                const SizedBox(width: 8),
-                Expanded(
-                  child: TextField(
-                    keyboardType: TextInputType.number,
-                    decoration: const InputDecoration(
-                        isDense: true,
-                        contentPadding: EdgeInsets.all(6),
-                        hintText: '0'),
-                    onSubmitted: (value) {
-                      final discount = double.tryParse(value) ?? 0;
-                      context.read<CartBloc>().add(CartItemDiscountChanged(
-                          productId: item.product.id, discount: discount));
-                    },
+            InkWell(
+              onTap: () {
+                context.read<CartBloc>().add(CartItemQuantityChanged(
+                    productId: item.product.id, delta: -1));
+              },
+              child: const Icon(Icons.remove_circle_outline, size: 20),
+            ),
+            Text(item.quantity.toString()),
+            InkWell(
+              onTap: () {
+                context.read<CartBloc>().add(CartItemQuantityChanged(
+                    productId: item.product.id, delta: 1));
+              },
+              child: const Icon(Icons.add_circle_outline, size: 20),
+            ),
+            // discount row
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+              child: Row(
+                children: [
+                  const Text('Giảm giá:'),
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: TextField(
+                      keyboardType: TextInputType.number,
+                      decoration: const InputDecoration(
+                          isDense: true,
+                          contentPadding: EdgeInsets.all(6),
+                          hintText: '0'),
+                      onSubmitted: (value) {
+                        final discount = double.tryParse(value) ?? 0;
+                        context.read<CartBloc>().add(CartItemDiscountChanged(
+                            productId: item.product.id, discount: discount));
+                      },
+                    ),
                   ),
-                ),
-                const SizedBox(width: 4),
-                const Text('vnd'),
-              ],
+                  const SizedBox(width: 4),
+                  const Text('vnd'),
+                ],
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }

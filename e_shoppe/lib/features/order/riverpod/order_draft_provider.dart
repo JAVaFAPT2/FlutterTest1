@@ -82,7 +82,17 @@ class OrderDraftNotifier extends StateNotifier<OrderDraft> {
     }
   }
 
-  void removeItem(String productId) {
+  void changeItemQty(int productId, int delta) {
+    final items = List<CartItem>.from(state.items);
+    final idx = items.indexWhere((e) => e.product.id == productId);
+    if (idx >= 0) {
+      final newQty = ((items[idx].quantity + delta).clamp(1, 100)).toInt();
+      items[idx] = items[idx].copyWith(quantity: newQty);
+      state = state.copyWith(items: items);
+    }
+  }
+
+  void removeItem(int productId) {
     state = state.copyWith(
         items: state.items.where((e) => e.product.id != productId).toList());
   }
