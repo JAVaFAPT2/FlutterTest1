@@ -2,9 +2,10 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:e_shoppe/features/search/riverpod/search_notifier.dart';
 import 'package:e_shoppe/data/models/product.dart';
 import 'package:e_shoppe/data/repositories/product_repository.dart';
+import 'package:e_shoppe/services/api_client.dart';
 
 class _FakeProductRepository extends ProductRepository {
-  _FakeProductRepository() : super();
+  _FakeProductRepository() : super(ApiClient());
 
   @override
   Future<List<Product>> fetchProducts(

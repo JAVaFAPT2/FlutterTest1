@@ -3,7 +3,7 @@ import 'dart:io';
 import 'package:shelf/shelf.dart';
 import 'package:shelf/shelf_io.dart' as io;
 import 'package:shelf_router/shelf_router.dart';
-import 'package:shelf_cors_headers/shelf_cors_headers.dart';
+import 'package:order_server/presentation/cors_middleware.dart';
 import 'package:order_server/infrastructure/in_memory_repositories.dart';
 import 'package:order_server/application/handlers.dart';
 import 'package:order_server/presentation/auth_middleware.dart';
@@ -22,7 +22,7 @@ Future<void> main() async {
 
   final handler = const Pipeline()
       .addMiddleware(logRequests())
-      .addMiddleware(corsHeaders())
+      .addMiddleware(cors())
       .addMiddleware(jwtMiddleware())
       .addHandler(router);
 

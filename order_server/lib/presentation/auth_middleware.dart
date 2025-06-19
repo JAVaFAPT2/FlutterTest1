@@ -7,10 +7,17 @@ Middleware jwtMiddleware() {
   final secret = Platform.environment['JWT_SECRET'] ?? 'secret';
   return (innerHandler) {
     return (Request request) async {
+      // Allow unauthenticated access to some public endpoints.
+      if (request.method == 'GET' &&
+          request.requestedUri.path.startsWith('/products')) {
+        return innerHandler(request);
+      }
+
       final auth = request.headers[HttpHeaders.authorizationHeader];
       if (auth == null || !auth.startsWith('Bearer ')) {
         return Response.unauthorized('Missing token');
       }
+
       final token = auth.substring(7);
       try {
         JWT.verify(token, SecretKey(secret));
