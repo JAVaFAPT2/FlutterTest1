@@ -16,20 +16,53 @@ jobs:
         with:
           channel: stable
 
-      - name: Cache pub packages
+      - name: Cache pub packages (Flutter)
         uses: actions/cache@v3
         with:
           path: |
             ~/.pub-cache
-          key: ${{ runner.os }}-pub-${{ hashFiles('**/pubspec.lock') }}
+          key: ${{ runner.os }}-pub-${{ hashFiles('e_shoppe/**/pubspec.lock') }}
           restore-keys: |
             ${{ runner.os }}-pub-
 
       - name: Flutter pub get
+        working-directory: e_shoppe
         run: flutter pub get
 
-      - name: Analyze
+      - name: Analyze Flutter code
+        working-directory: e_shoppe
         run: flutter analyze --no-pub
 
-      - name: Run tests
-        run: flutter test 
+      - name: Run Flutter tests
+        working-directory: e_shoppe
+        run: flutter test
+
+  backend:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Dart
+        uses: dart-lang/setup-dart@v1
+
+      - name: Cache pub packages (Dart)
+        uses: actions/cache@v3
+        with:
+          path: |
+            ~/.pub-cache
+          key: ${{ runner.os }}-dart-${{ hashFiles('order_server/pubspec.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-dart-
+
+      - name: Dart pub get (backend)
+        working-directory: order_server
+        run: dart pub get
+
+      - name: Analyze backend code
+        working-directory: order_server
+        run: dart analyze --fatal-infos --fatal-warnings
+
+      # If backend tests exist, run them (none yet, so this is optional)
+      # - name: Run backend tests
+      #   working-directory: order_server
+      #   run: dart test 
