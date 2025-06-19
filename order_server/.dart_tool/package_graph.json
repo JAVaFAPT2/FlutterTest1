@@ -9,6 +9,7 @@
       "dependencies": [
         "dart_jsonwebtoken",
         "json_annotation",
+        "logging",
         "postgres",
         "shelf",
         "shelf_router",
@@ -79,6 +80,11 @@
         "web_socket_channel",
         "yaml"
       ]
+    },
+    {
+      "name": "logging",
+      "version": "1.3.0",
+      "dependencies": []
     },
     {
       "name": "dart_jsonwebtoken",
@@ -351,11 +357,6 @@
     {
       "name": "mime",
       "version": "2.0.0",
-      "dependencies": []
-    },
-    {
-      "name": "logging",
-      "version": "1.3.0",
       "dependencies": []
     },
     {

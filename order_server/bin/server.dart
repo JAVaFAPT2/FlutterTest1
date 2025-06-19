@@ -7,8 +7,12 @@ import 'package:order_server/presentation/cors_middleware.dart';
 import 'package:order_server/infrastructure/in_memory_repositories.dart';
 import 'package:order_server/application/handlers.dart';
 import 'package:order_server/presentation/auth_middleware.dart';
+import 'package:order_server/services/logger.dart';
 
 Future<void> main() async {
+  // Init logging
+  initLogging();
+
   // In-memory infrastructure
   final store = InMemoryStore();
   final handlers = Handlers(store);
@@ -27,5 +31,5 @@ Future<void> main() async {
       .addHandler(router);
 
   final server = await io.serve(handler, InternetAddress.anyIPv4, 8080);
-  print('🚀  Order server running on port ${server.port}');
+  log.info('🚀  Order server running on port ${server.port}');
 }
