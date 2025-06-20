@@ -15,6 +15,9 @@ import '../../shared/responsive.dart';
 import 'package:e_shoppe/features/order/customer_search_page.dart';
 import '../../data/models/user.dart';
 import '../order/riverpod/order_draft_provider.dart';
+import '../../data/repositories/auth_repository.dart';
+import '../../shared/utils/formatter.dart';
+import '../../shared/spacing.dart';
 
 class CheckoutPage extends ConsumerStatefulWidget {
   const CheckoutPage({super.key});
@@ -25,6 +28,8 @@ class CheckoutPage extends ConsumerStatefulWidget {
 
 class _CheckoutPageState extends ConsumerState<CheckoutPage> {
   final _addressController = TextEditingController();
+  final _nameController = TextEditingController();
+  final _phoneController = TextEditingController();
 
   @override
   void initState() {
@@ -47,6 +52,8 @@ class _CheckoutPageState extends ConsumerState<CheckoutPage> {
 
   @override
   void dispose() {
+    _nameController.dispose();
+    _phoneController.dispose();
     _addressController.dispose();
     super.dispose();
   }
@@ -69,11 +76,17 @@ class _CheckoutPageState extends ConsumerState<CheckoutPage> {
       }
     });
     final authState = context.watch<AuthBloc>().state;
-    if (authState.status == AuthStatus.authenticated &&
-        authState.user?.address != null &&
-        _addressController.text.isEmpty) {
-      // prefill the address only once so that user edits are preserved on rebuilds
-      _addressController.text = authState.user!.address!;
+    if (authState.status == AuthStatus.authenticated) {
+      final user = authState.user!;
+      if (_nameController.text.isEmpty && user.name != null) {
+        _nameController.text = user.name!;
+      }
+      if (_phoneController.text.isEmpty && user.phone != null) {
+        _phoneController.text = user.phone!;
+      }
+      if (_addressController.text.isEmpty && user.address != null) {
+        _addressController.text = user.address!;
+      }
     }
     return Scaffold(
       body: BlocBuilder<CartBloc, CartState>(
@@ -94,7 +107,7 @@ class _CheckoutPageState extends ConsumerState<CheckoutPage> {
                       ),
                       const SizedBox(height: 12),
                       Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 16),
+                        padding: Gaps.page,
                         child: Container(
                           height: 48,
                           decoration: BoxDecoration(
@@ -138,16 +151,19 @@ class _CheckoutPageState extends ConsumerState<CheckoutPage> {
                       ),
                       const SizedBox(height: 20),
                       Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 16),
+                        padding: Gaps.page,
                         child: SectionCard(
                           title: 'Thông tin khách hàng',
                           child: _CustomerInfoContent(
-                              addressController: _addressController),
+                            nameController: _nameController,
+                            phoneController: _phoneController,
+                            addressController: _addressController,
+                          ),
                         ),
                       ),
                       const SizedBox(height: 16),
                       Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 16),
+                        padding: Gaps.page,
                         child: SectionCard(
                           title: 'Danh sách sản phẩm',
                           trailing: TextButton.icon(
@@ -164,17 +180,17 @@ class _CheckoutPageState extends ConsumerState<CheckoutPage> {
                       ),
                       const SizedBox(height: 16),
                       Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 16),
+                        padding: Gaps.page,
                         child: Container(
                           color: Colors.white,
                           child: Column(
                             children: [
                               _TotalRow(
                                   label: 'Tiền giảm:',
-                                  value: _currency(state.totalDiscount)),
+                                  value: formatCurrency(state.totalDiscount)),
                               _TotalRow(
                                   label: 'Tạm tính:',
-                                  value: _currency(state.total)),
+                                  value: formatCurrency(state.total)),
                             ],
                           ),
                         ),
@@ -192,7 +208,17 @@ class _CheckoutPageState extends ConsumerState<CheckoutPage> {
                   child: GestureDetector(
                     onTap: state.items.isEmpty
                         ? null
-                        : () {
+                        : () async {
+                            // update profile with current inputs
+                            final repo = context.read<AuthRepository>();
+                            final updated = await repo.updateProfile(
+                              name: _nameController.text.trim(),
+                              address: _addressController.text.trim(),
+                              phone: _phoneController.text.trim(),
+                            );
+                            if (updated != null) {
+                              context.read<AuthBloc>().add(LoggedIn(updated));
+                            }
                             // Sync latest cart items into OrderDraft before proceeding
                             ref
                                 .read(orderDraftProvider.notifier)
@@ -230,8 +256,6 @@ class _CheckoutPageState extends ConsumerState<CheckoutPage> {
   }
 }
 
-String _currency(double val) => '${val.toStringAsFixed(0)}đ';
-
 class _TotalRow extends StatelessWidget {
   const _TotalRow({required this.label, required this.value});
 
@@ -251,8 +275,14 @@ class _TotalRow extends StatelessWidget {
 }
 
 class _CustomerInfoContent extends StatelessWidget {
-  const _CustomerInfoContent({required this.addressController});
+  const _CustomerInfoContent({
+    required this.nameController,
+    required this.phoneController,
+    required this.addressController,
+  });
 
+  final TextEditingController nameController;
+  final TextEditingController phoneController;
   final TextEditingController addressController;
 
   @override
@@ -262,8 +292,11 @@ class _CustomerInfoContent extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        _infoRow(icon: Icons.person, text: user?.name ?? ''),
-        _infoRow(icon: Icons.phone, text: user?.id ?? ''),
+        _editRow(
+            icon: Icons.person,
+            controller: nameController,
+            hint: 'Tên khách hàng'),
+        _editRow(icon: Icons.phone, controller: phoneController, hint: 'SĐT'),
         _infoRow(icon: Icons.email, text: user?.email ?? ''),
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
@@ -285,6 +318,31 @@ class _CustomerInfoContent extends StatelessWidget {
           ),
         ),
       ],
+    );
+  }
+
+  Widget _editRow(
+      {required IconData icon,
+      required TextEditingController controller,
+      required String hint}) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+      child: Row(
+        children: [
+          Icon(icon, color: Colors.green),
+          const SizedBox(width: 12),
+          Expanded(
+            child: TextField(
+              controller: controller,
+              decoration: InputDecoration(
+                hintText: hint,
+                isDense: true,
+                border: const OutlineInputBorder(borderSide: BorderSide.none),
+              ),
+            ),
+          ),
+        ],
+      ),
     );
   }
 
@@ -358,10 +416,11 @@ class _ProductRow extends StatelessWidget {
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                         style: const TextStyle(
-                            color: Colors.orange, fontWeight: FontWeight.bold)),
-                    Text(_currency(item.product.price),
+                            color: AppColors.orange,
+                            fontWeight: FontWeight.bold)),
+                    Text(formatCurrency(item.product.price),
                         style: const TextStyle(
-                            color: Colors.red, fontWeight: FontWeight.bold)),
+                            color: AppColors.red, fontWeight: FontWeight.bold)),
                   ],
                 ),
               ),

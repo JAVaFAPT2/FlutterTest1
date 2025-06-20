@@ -4,6 +4,7 @@ class AppColors {
   static const cyan = Color(0xFF00CCFF);
   static const green = Color(0xFF067D31);
   static const orange = Color(0xFFFF6A00);
+  static const red = Color(0xFFE53935);
   static const darkGray = Color(0xFF595959);
   static const gray = Color(0xFF999999);
   static const lightGray = Color(0xFFE0E0E0);
@@ -15,12 +16,14 @@ class AppColors {
 class AppTheme {
   static ThemeData light() {
     return ThemeData(
+      useMaterial3: true,
       primaryColor: AppColors.cyan,
       scaffoldBackgroundColor: const Color(0xFFF5F5F5),
       fontFamily: 'Inter',
       colorScheme: ColorScheme.fromSeed(seedColor: AppColors.cyan).copyWith(
         primary: AppColors.cyan,
         secondary: AppColors.green,
+        error: AppColors.red,
       ),
       textTheme: const TextTheme(
         titleLarge: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
@@ -32,7 +35,13 @@ class AppTheme {
           backgroundColor: AppColors.cyan,
           foregroundColor: AppColors.white,
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(6)),
+          padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 16),
         ),
+      ),
+      inputDecorationTheme: const InputDecorationTheme(
+        isDense: true,
+        border: UnderlineInputBorder(),
+        contentPadding: EdgeInsets.symmetric(vertical: 8),
       ),
     );
   }
@@ -63,7 +72,13 @@ class AppTheme {
           backgroundColor: AppColors.cyan,
           foregroundColor: AppColors.white,
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(6)),
+          padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 16),
         ),
+      ),
+      inputDecorationTheme: const InputDecorationTheme(
+        isDense: true,
+        border: UnderlineInputBorder(),
+        contentPadding: EdgeInsets.symmetric(vertical: 8),
       ),
       textTheme: const TextTheme(
         titleLarge: TextStyle(

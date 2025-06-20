@@ -1,4 +1,6 @@
 import 'dart:io';
+import 'dart:convert';
+import 'dart:typed_data';
 import 'package:flutter/foundation.dart';
 
 import 'package:flutter/material.dart';
@@ -24,37 +26,48 @@ class ProfilePage extends ConsumerStatefulWidget {
 class _ProfilePageState extends ConsumerState<ProfilePage> {
   final ImagePicker _picker = ImagePicker();
   String? _avatarUrl;
+  Uint8List? _avatarBytes;
   bool _uploading = false;
+  double? _progress;
 
   late final TextEditingController _nameCtrl;
   late final TextEditingController _addressCtrl;
   late final TextEditingController _phoneCtrl;
 
+  String? get _currentUserId => context.read<AuthBloc>().state.user?.id;
+
   Future<void> _pickAndUpload() async {
     final XFile? picked =
         await _picker.pickImage(source: ImageSource.gallery, imageQuality: 85);
     if (picked == null) return;
-    setState(() => _uploading = true);
+    setState(() {
+      _uploading = true;
+      _progress = null;
+    });
 
-    final file = File(picked.path);
-    final storageRef = FirebaseStorage.instance
-        .ref()
-        .child('avatars/${DateTime.now().millisecondsSinceEpoch}.jpg');
+    // For free plan without Storage: save as Base64 directly
     try {
-      await storageRef.putFile(file);
-      final url = await storageRef.getDownloadURL();
-      await FirebaseFirestore.instance
-          .collection('profiles')
-          .doc('demo-user')
-          .set({'avatar': url}, SetOptions(merge: true));
-      setState(() => _avatarUrl = url);
+      final bytes = await picked.readAsBytes();
+      final b64 = base64Encode(bytes);
+      final uid = _currentUserId;
+      if (uid != null && uid.isNotEmpty) {
+        await FirebaseFirestore.instance
+            .collection('profiles')
+            .doc(uid)
+            .set({'avatarBase64': b64}, SetOptions(merge: true));
+      }
+      if (mounted)
+        setState(() {
+          _avatarBytes = bytes;
+          _avatarUrl = null;
+          _uploading = false;
+        });
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context)
             .showSnackBar(SnackBar(content: Text('Upload failed: $e')));
+        setState(() => _uploading = false);
       }
-    } finally {
-      if (mounted) setState(() => _uploading = false);
     }
   }
 
@@ -65,6 +78,8 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
     _nameCtrl = TextEditingController(text: user?.name ?? '');
     _addressCtrl = TextEditingController(text: user?.address ?? '');
     _phoneCtrl = TextEditingController(text: user?.phone ?? '');
+
+    _loadAvatar();
   }
 
   @override
@@ -73,6 +88,34 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
     _addressCtrl.dispose();
     _phoneCtrl.dispose();
     super.dispose();
+  }
+
+  Future<void> _loadAvatar() async {
+    final uid = _currentUserId;
+    if (uid == null || uid.isEmpty) return;
+    try {
+      final doc = await FirebaseFirestore.instance
+          .collection('profiles')
+          .doc(uid)
+          .get();
+      final data = doc.data();
+      final url = data?['avatar'] as String?;
+      final b64 = data?['avatarBase64'] as String?;
+      if (url != null) {
+        setState(() {
+          _avatarUrl = url;
+          _avatarBytes = null;
+        });
+      } else if (b64 != null) {
+        try {
+          final bytes = base64Decode(b64);
+          setState(() {
+            _avatarBytes = bytes;
+            _avatarUrl = null;
+          });
+        } catch (_) {}
+      }
+    } catch (_) {}
   }
 
   Future<void> _saveProfile() async {
@@ -103,9 +146,12 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
             children: [
               CircleAvatar(
                 radius: 60,
-                backgroundImage:
-                    _avatarUrl != null ? NetworkImage(_avatarUrl!) : null,
-                child: _avatarUrl == null
+                backgroundImage: _avatarBytes != null
+                    ? MemoryImage(_avatarBytes!)
+                    : _avatarUrl != null
+                        ? NetworkImage(_avatarUrl!)
+                        : null,
+                child: _avatarUrl == null && _avatarBytes == null
                     ? const Icon(Icons.person, size: 60)
                     : null,
               ),

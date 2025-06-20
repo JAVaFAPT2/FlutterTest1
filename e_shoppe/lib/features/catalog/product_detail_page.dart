@@ -5,6 +5,8 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../data/models/product.dart';
 import '../cart/bloc/cart_bloc.dart';
 import '../cart/cart_page.dart';
+import '../../shared/utils/formatter.dart';
+import '../../theme/app_theme.dart';
 
 class ProductDetailPage extends StatelessWidget {
   const ProductDetailPage({super.key, required this.product});
@@ -30,11 +32,11 @@ class ProductDetailPage extends StatelessWidget {
             const SizedBox(height: 16),
             Text(product.title, style: Theme.of(context).textTheme.titleLarge),
             const SizedBox(height: 8),
-            Text('\$${product.price.toStringAsFixed(2)}',
+            Text(formatCurrency(product.price),
                 style: Theme.of(context)
                     .textTheme
                     .titleMedium
-                    ?.copyWith(color: Colors.green)),
+                    ?.copyWith(color: AppColors.green)),
             const SizedBox(height: 16),
             Text(product.description),
           ],

@@ -4,6 +4,9 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../data/models/cart_item.dart';
 import '../cart/bloc/cart_bloc.dart';
 import '../checkout/checkout_page.dart';
+import '../../shared/utils/formatter.dart';
+import '../../shared/spacing.dart';
+import '../../theme/app_theme.dart';
 
 class CartPage extends StatelessWidget {
   const CartPage({super.key});
@@ -31,11 +34,11 @@ class CartPage extends StatelessWidget {
         builder: (context, state) {
           return Container(
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-            color: Colors.white,
+            color: AppColors.white,
             child: Row(
               children: [
                 Expanded(
-                    child: Text('Total: \$${state.total.toStringAsFixed(2)}',
+                    child: Text('Tổng: ${formatCurrency(state.total)}',
                         style: const TextStyle(
                             fontSize: 16, fontWeight: FontWeight.bold))),
                 ElevatedButton(
@@ -72,19 +75,22 @@ class _CartListTile extends StatelessWidget {
           : Container(
               width: 56,
               height: 56,
-              color: Colors.grey.shade300,
+              color: AppColors.lightGray,
               child: const Icon(Icons.image_not_supported),
             ),
       title: Text(item.product.title,
-          maxLines: 1, overflow: TextOverflow.ellipsis),
-      subtitle: Text('Subtotal: \$${item.subtotal.toStringAsFixed(2)}'),
+          maxLines: 1,
+          overflow: TextOverflow.ellipsis,
+          style: const TextStyle(fontWeight: FontWeight.w600)),
+      subtitle: Text('Tạm tính: ${formatCurrency(item.subtotal)}'),
       trailing: SizedBox(
         width: 120,
         child: Row(
           mainAxisAlignment: MainAxisAlignment.end,
           children: [
             IconButton(
-              icon: const Icon(Icons.remove_circle_outline),
+              icon:
+                  const Icon(Icons.remove_circle_outline, color: AppColors.red),
               onPressed: () {
                 context.read<CartBloc>().add(CartItemQuantityChanged(
                     productId: item.product.id, delta: -1));
