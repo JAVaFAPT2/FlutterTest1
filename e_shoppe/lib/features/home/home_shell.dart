@@ -5,6 +5,7 @@ import '../search/search_page.dart';
 import '../cart/cart_page.dart';
 import '../profile/profile_page.dart';
 import '../cart/bloc/cart_bloc.dart';
+import '../order/order_list_page.dart';
 
 class HomeShell extends StatefulWidget {
   const HomeShell({super.key});
@@ -18,6 +19,7 @@ class _HomeShellState extends State<HomeShell> {
   late final _pages = [
     const SearchPage(),
     const CartPage(),
+    const OrderListPage(),
     const ProfilePage()
   ];
 
@@ -64,6 +66,8 @@ class _HomeShellState extends State<HomeShell> {
             icon: Icon(Icons.search), label: 'Search'),
         BottomNavigationBarItem(icon: _cartIcon(cartCount), label: 'Cart'),
         const BottomNavigationBarItem(
+            icon: Icon(Icons.history), label: 'Orders'),
+        const BottomNavigationBarItem(
             icon: Icon(Icons.person), label: 'Profile'),
       ];
 
@@ -81,6 +85,8 @@ class _HomeShellState extends State<HomeShell> {
                       icon: Icon(Icons.search), label: Text('Search')),
                   NavigationRailDestination(
                       icon: _cartIcon(cartCount), label: const Text('Cart')),
+                  const NavigationRailDestination(
+                      icon: Icon(Icons.history), label: Text('Orders')),
                   const NavigationRailDestination(
                       icon: Icon(Icons.person), label: Text('Profile')),
                 ],

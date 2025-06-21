@@ -113,6 +113,12 @@ class OrderListPage extends ConsumerWidget {
                                         status: o['status'] ?? 'pending'),
                                   ],
                                 ),
+                                IconButton(
+                                  icon: const Icon(Icons.edit, size: 20),
+                                  onPressed: () => Navigator.of(context)
+                                      .pushNamed('/order/detail',
+                                          arguments: o['id']),
+                                ),
                                 const Icon(Icons.chevron_right),
                               ],
                             ),
