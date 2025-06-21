@@ -7,11 +7,24 @@ import 'customer_search_page.dart';
 
 import 'order_app_bar.dart';
 
-class OrderCreatePage extends ConsumerWidget {
+class OrderCreatePage extends ConsumerStatefulWidget {
   const OrderCreatePage({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<OrderCreatePage> createState() => _OrderCreatePageState();
+}
+
+class _OrderCreatePageState extends ConsumerState<OrderCreatePage> {
+  @override
+  void initState() {
+    super.initState();
+    // Reset draft immediately so widgets initialise with empty values.
+    ref.read(orderDraftProvider.notifier).clear();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final ref = this.ref;
     return Scaffold(
       backgroundColor: const Color(0xFFE0E0E0),
       appBar: const OrderAppBar(),
@@ -85,6 +98,10 @@ class _SearchCustomerFieldState extends ConsumerState<_SearchCustomerField> {
     if (customer != null && _ctrl.text != customer.name) {
       _ctrl.text = customer.name;
     }
+    if (customer == null && _ctrl.text.isNotEmpty) {
+      // Ensure field resets when customer is cleared/new order started.
+      _ctrl.clear();
+    }
 
     return TextField(
       controller: _ctrl,
@@ -153,6 +170,7 @@ class _CustomerInfoCard extends ConsumerWidget {
   const _CustomerInfoCard();
 
   Widget _row(IconData icon, String text) {
+    final display = text.isEmpty ? '—' : text;
     return Column(
       children: [
         Padding(
@@ -162,10 +180,7 @@ class _CustomerInfoCard extends ConsumerWidget {
               Icon(icon, color: const Color(0xFF008000), size: 18),
               const SizedBox(width: 12),
               Expanded(
-                child: Text(
-                  text,
-                  style: const TextStyle(fontSize: 14),
-                ),
+                child: Text(display, style: const TextStyle(fontSize: 14)),
               ),
             ],
           ),
@@ -177,11 +192,7 @@ class _CustomerInfoCard extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final draft = ref.watch(orderDraftProvider);
-    final customer = draft.customer;
-    if (customer == null) {
-      return const SizedBox();
-    }
+    final d = ref.watch(orderDraftProvider);
     return Container(
       decoration: BoxDecoration(
         color: Colors.white,
@@ -189,12 +200,10 @@ class _CustomerInfoCard extends ConsumerWidget {
       ),
       child: Column(
         children: [
-          _row(Icons.person_outline, customer.name),
-          _row(Icons.call, draft.phone ?? customer.phone ?? ''),
-          _row(Icons.email_outlined, draft.customerEmail ?? customer.email),
-          if ((draft.address ?? customer.address) != null)
-            _row(Icons.location_on_outlined,
-                (draft.address ?? customer.address)!),
+          _row(Icons.person_outline, d.customerName ?? ''),
+          _row(Icons.call, d.phone ?? ''),
+          _row(Icons.email_outlined, d.customerEmail ?? ''),
+          _row(Icons.location_on_outlined, d.address ?? ''),
         ],
       ),
     );

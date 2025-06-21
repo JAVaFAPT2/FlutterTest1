@@ -17,7 +17,11 @@ Middleware jwtMiddleware() {
                   request.url.path.startsWith('orders')) ||
               // Allow listing or viewing orders without auth for now
               (request.method == 'GET' &&
-                  request.url.path.startsWith('orders'));
+                  request.url.path.startsWith('orders')) ||
+              // Allow status update without auth
+              (request.method == 'PATCH' &&
+                  request.url.path.endsWith('/status') &&
+                  request.url.pathSegments.first == 'orders');
 
       if (isPublic) {
         return innerHandler(request);

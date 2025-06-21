@@ -82,13 +82,13 @@ class _ShippingInfoPageState extends ConsumerState<ShippingInfoPage> {
           ),
           _DropdownRow(
             label: 'Quốc gia',
-            value: draft.country ?? 'Việt Nam',
+            value: draft.country,
             onChanged: (v) => notifier.setCountry(v),
             items: const ['Việt Nam'],
           ),
           _DropdownRow(
             label: 'Tỉnh/ Thành phố',
-            value: draft.city ?? 'Tp Hồ Chí Minh',
+            value: draft.city,
             items: const ['Tp Hồ Chí Minh', 'Hà Nội'],
             onChanged: (v) => notifier.setCity(v),
           ),
@@ -100,19 +100,19 @@ class _ShippingInfoPageState extends ConsumerState<ShippingInfoPage> {
           ),
           _DropdownRow(
             label: 'Hình thức giao hàng',
-            value: draft.shippingMethod ?? 'Giao cua nha vận chuyển',
+            value: draft.shippingMethod,
             items: const ['Giao cua nha vận chuyển', 'Nhận tại cửa hàng'],
             onChanged: (v) => notifier.setShippingMethod(v),
           ),
           _DropdownRow(
             label: 'Phương thức thanh toán',
-            value: draft.paymentMethod ?? 'Giao hàng thu tiền',
+            value: draft.paymentMethod,
             items: const ['Giao hàng thu tiền', 'Chuyển khoản'],
             onChanged: (v) => notifier.setPaymentMethod(v),
           ),
           _DropdownRow(
             label: 'Dịch vụ cộng thêm',
-            value: draft.extraService ?? 'Gói quà',
+            value: draft.extraService,
             items: const ['Gói quà', 'Bảo hành mở rộng'],
             onChanged: (v) => notifier.setExtraService(v),
           ),

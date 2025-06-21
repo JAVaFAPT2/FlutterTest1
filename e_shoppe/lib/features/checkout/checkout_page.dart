@@ -29,6 +29,7 @@ class _CheckoutPageState extends ConsumerState<CheckoutPage> {
   final _addressController = TextEditingController();
   final _nameController = TextEditingController();
   final _phoneController = TextEditingController();
+  final _emailController = TextEditingController();
 
   @override
   void initState() {
@@ -54,6 +55,7 @@ class _CheckoutPageState extends ConsumerState<CheckoutPage> {
     _nameController.dispose();
     _phoneController.dispose();
     _addressController.dispose();
+    _emailController.dispose();
     super.dispose();
   }
 
@@ -74,19 +76,6 @@ class _CheckoutPageState extends ConsumerState<CheckoutPage> {
         }
       }
     });
-    final authState = context.watch<AuthBloc>().state;
-    if (authState.status == AuthStatus.authenticated) {
-      final user = authState.user!;
-      if (_nameController.text.isEmpty && user.name != null) {
-        _nameController.text = user.name!;
-      }
-      if (_phoneController.text.isEmpty && user.phone != null) {
-        _phoneController.text = user.phone!;
-      }
-      if (_addressController.text.isEmpty && user.address != null) {
-        _addressController.text = user.address!;
-      }
-    }
     return Scaffold(
       body: BlocBuilder<CartBloc, CartState>(
         builder: (context, state) {
@@ -156,6 +145,7 @@ class _CheckoutPageState extends ConsumerState<CheckoutPage> {
                           child: _CustomerInfoContent(
                             nameController: _nameController,
                             phoneController: _phoneController,
+                            emailController: _emailController,
                             addressController: _addressController,
                           ),
                         ),
@@ -218,10 +208,21 @@ class _CheckoutPageState extends ConsumerState<CheckoutPage> {
                             if (updated != null) {
                               context.read<AuthBloc>().add(LoggedIn(updated));
                             }
-                            // Sync latest cart items into OrderDraft before proceeding
-                            ref
-                                .read(orderDraftProvider.notifier)
-                                .setItems(state.items);
+                            final draftNotifier =
+                                ref.read(orderDraftProvider.notifier);
+
+                            // Push customer info from this page into draft
+                            draftNotifier
+                                .setCustomerName(_nameController.text.trim());
+                            draftNotifier
+                                .setCustomerEmail(_emailController.text.trim());
+                            draftNotifier
+                                .setPhone(_phoneController.text.trim());
+                            draftNotifier
+                                .setAddress(_addressController.text.trim());
+
+                            // Sync cart items into draft
+                            draftNotifier.setItems(state.items);
 
                             Navigator.of(context)
                                 .pushNamed('/order/shipping-info');
@@ -275,17 +276,17 @@ class _CustomerInfoContent extends StatelessWidget {
   const _CustomerInfoContent({
     required this.nameController,
     required this.phoneController,
+    required this.emailController,
     required this.addressController,
   });
 
   final TextEditingController nameController;
   final TextEditingController phoneController;
+  final TextEditingController emailController;
   final TextEditingController addressController;
 
   @override
   Widget build(BuildContext context) {
-    final authState = context.watch<AuthBloc>().state;
-    final user = authState.user;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
@@ -294,7 +295,11 @@ class _CustomerInfoContent extends StatelessWidget {
             controller: nameController,
             hint: 'Tên khách hàng'),
         _editRow(icon: Icons.phone, controller: phoneController, hint: 'SĐT'),
-        _infoRow(icon: Icons.email, text: user?.email ?? ''),
+        _editRow(
+            icon: Icons.email,
+            controller: emailController,
+            hint: 'Email',
+            keyboardType: TextInputType.emailAddress),
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
           child: Row(
@@ -318,10 +323,12 @@ class _CustomerInfoContent extends StatelessWidget {
     );
   }
 
-  Widget _editRow(
-      {required IconData icon,
-      required TextEditingController controller,
-      required String hint}) {
+  Widget _editRow({
+    required IconData icon,
+    required TextEditingController controller,
+    required String hint,
+    TextInputType? keyboardType,
+  }) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
       child: Row(
@@ -331,11 +338,15 @@ class _CustomerInfoContent extends StatelessWidget {
           Expanded(
             child: TextField(
               controller: controller,
+              keyboardType: keyboardType,
               decoration: InputDecoration(
                 hintText: hint,
                 isDense: true,
                 border: const OutlineInputBorder(borderSide: BorderSide.none),
               ),
+              autofillHints: const [],
+              enableSuggestions: false,
+              autocorrect: false,
             ),
           ),
         ],

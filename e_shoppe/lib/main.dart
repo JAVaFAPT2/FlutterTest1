@@ -26,6 +26,7 @@ import 'features/order/order_confirm_page.dart';
 import 'features/order/order_success_page.dart';
 import 'features/order/order_failure_page.dart';
 import 'features/order/order_detail_page.dart';
+import 'features/demo/figma_home_page.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -113,6 +114,7 @@ class EShoppeApp extends StatelessWidget {
                     '/order/success': (_) => const OrderSuccessPage(),
                     '/order/failure': (_) => const OrderFailurePage(),
                     '/order/detail': (_) => const OrderDetailPage(),
+                    '/v2': (_) => const FigmaHomePage(),
                   },
                 );
               });

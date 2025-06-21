@@ -158,21 +158,30 @@ class _InfoRow extends StatelessWidget {
   const _InfoRow({required this.icon, required this.text});
   @override
   Widget build(BuildContext context) {
-    return Column(
-      children: [
-        Container(
-          color: Colors.white,
-          padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 8),
-          child: Row(
-            children: [
-              Icon(icon, color: const Color(0xFF008000), size: 18),
-              const SizedBox(width: 12),
-              Expanded(child: Text(text, style: const TextStyle(fontSize: 14))),
-            ],
+    final displayText = (text.isEmpty) ? '—' : text;
+    return InkWell(
+      onTap: () {
+        Navigator.of(context).pushNamed('/order/shipping-info');
+      },
+      child: Column(
+        children: [
+          Container(
+            color: Colors.white,
+            padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 8),
+            child: Row(
+              children: [
+                Icon(icon, color: const Color(0xFF008000), size: 18),
+                const SizedBox(width: 12),
+                Expanded(
+                    child: Text(displayText,
+                        style: const TextStyle(fontSize: 14))),
+                const Icon(Icons.edit, size: 16, color: Color(0xFF595959)),
+              ],
+            ),
           ),
-        ),
-        const Divider(height: 1),
-      ],
+          const Divider(height: 1),
+        ],
+      ),
     );
   }
 }
