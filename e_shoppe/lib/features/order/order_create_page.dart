@@ -23,7 +23,6 @@ class OrderCreatePage extends ConsumerWidget {
           _SectionTitle(title: 'Thông tin khách hàng'),
           const _CustomerInfoCard(),
           const SizedBox(height: 12),
-          _SectionTitle(title: 'Danh sách sản phẩm'),
           const _ProductListCard(),
           const SizedBox(height: 12),
           _SummaryCard(),
@@ -54,43 +53,74 @@ class OrderCreatePage extends ConsumerWidget {
   }
 }
 
-class _SearchCustomerField extends StatelessWidget {
+class _SearchCustomerField extends ConsumerStatefulWidget {
   final WidgetRef ref;
   const _SearchCustomerField({required this.ref});
 
   @override
+  ConsumerState<_SearchCustomerField> createState() =>
+      _SearchCustomerFieldState();
+}
+
+class _SearchCustomerFieldState extends ConsumerState<_SearchCustomerField> {
+  late final TextEditingController _ctrl;
+
+  @override
+  void initState() {
+    super.initState();
+    _ctrl = TextEditingController();
+  }
+
+  @override
+  void dispose() {
+    _ctrl.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
-    final customer = ref.watch(orderDraftProvider).customer;
-    return GestureDetector(
-      onTap: () async {
-        final selected = await Navigator.of(context).push<User?>(
-          MaterialPageRoute(builder: (_) => const CustomerSearchPage()),
-        );
-        if (selected != null) {
-          ref.read(orderDraftProvider.notifier).setCustomer(selected);
-        }
-      },
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 14),
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(6),
-        ),
-        child: Row(
-          children: [
-            const Icon(Icons.search, size: 20),
-            const SizedBox(width: 8),
-            Expanded(
-              child: Text(
-                customer == null ? 'Chọn khách hàng' : customer.name,
-                style: TextStyle(
-                    color: customer == null ? Colors.grey : Colors.black),
+    final customer = widget.ref.watch(orderDraftProvider).customer;
+
+    // If a customer is selected, show its name in the field (read-only).
+    if (customer != null && _ctrl.text != customer.name) {
+      _ctrl.text = customer.name;
+    }
+
+    return TextField(
+      controller: _ctrl,
+      readOnly: customer != null, // lock editing once chosen via search
+      decoration: InputDecoration(
+        contentPadding:
+            const EdgeInsets.symmetric(vertical: 14, horizontal: 12),
+        hintText: 'Nhập SĐT/ Mã thẻ/ Tên khách hàng',
+        prefixIcon: const Icon(Icons.search, size: 20),
+        suffixIcon: customer == null
+            ? null
+            : IconButton(
+                icon: const Icon(Icons.close, size: 18),
+                onPressed: () {
+                  widget.ref.read(orderDraftProvider.notifier).clearCustomer();
+                  _ctrl.clear();
+                },
               ),
-            ),
-            const Icon(Icons.chevron_right),
-          ],
+        filled: true,
+        fillColor: Colors.white,
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(6),
+          borderSide: BorderSide.none,
         ),
       ),
+      onTap: () async {
+        // Only open search if not yet selected.
+        if (widget.ref.read(orderDraftProvider).customer == null) {
+          final selected = await Navigator.of(context).push<User?>(
+            MaterialPageRoute(builder: (_) => const CustomerSearchPage()),
+          );
+          if (selected != null) {
+            widget.ref.read(orderDraftProvider.notifier).setCustomer(selected);
+          }
+        }
+      },
     );
   }
 }
@@ -161,7 +191,7 @@ class _CustomerInfoCard extends ConsumerWidget {
         children: [
           _row(Icons.person_outline, customer.name),
           _row(Icons.call, draft.phone ?? customer.phone ?? ''),
-          _row(Icons.email_outlined, customer.email),
+          _row(Icons.email_outlined, draft.customerEmail ?? customer.email),
           if ((draft.address ?? customer.address) != null)
             _row(Icons.location_on_outlined,
                 (draft.address ?? customer.address)!),
@@ -185,7 +215,8 @@ class _ProductListCard extends ConsumerWidget {
       child: Column(
         children: [
           // Header with add button
-          Padding(
+          Container(
+            color: const Color(0xFF008000),
             padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -195,12 +226,12 @@ class _ProductListCard extends ConsumerWidget {
                   style: TextStyle(
                       fontSize: 14,
                       fontWeight: FontWeight.w600,
-                      color: Color(0xFF008000)),
+                      color: Colors.white),
                 ),
                 TextButton.icon(
                   style: TextButton.styleFrom(
                     padding: EdgeInsets.zero,
-                    foregroundColor: const Color(0xFF008000),
+                    foregroundColor: Colors.white,
                   ),
                   onPressed: () {
                     Navigator.of(context).pushNamed('/order/select-product');
@@ -258,17 +289,32 @@ class _ProductItemTile extends ConsumerWidget {
                     style: const TextStyle(
                       fontSize: 12,
                       fontWeight: FontWeight.w600,
-                      color: Color(0xFFDC0000),
+                      color: Colors.black,
                     ),
                   ),
                   const SizedBox(height: 2),
-                  Text(
-                    '${item.product.price.toStringAsFixed(0)}đ',
-                    style: const TextStyle(
-                      fontSize: 12,
-                      fontWeight: FontWeight.w400,
-                      color: Colors.grey,
-                    ),
+                  Row(
+                    children: [
+                      Text(
+                        '${item.product.price.toStringAsFixed(0)}đ',
+                        style: const TextStyle(
+                          fontSize: 12,
+                          fontWeight: FontWeight.w600,
+                          color: Color(0xFFDC0000),
+                        ),
+                      ),
+                      if (item.discountValue > 0) ...[
+                        const SizedBox(width: 4),
+                        Text(
+                          '${(item.product.price + item.discountValue).toStringAsFixed(0)}đ',
+                          style: const TextStyle(
+                            fontSize: 10,
+                            decoration: TextDecoration.lineThrough,
+                            color: Colors.grey,
+                          ),
+                        ),
+                      ]
+                    ],
                   ),
                   const SizedBox(height: 4),
                   Row(
@@ -345,12 +391,12 @@ class _SummaryCard extends ConsumerWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           _SummaryRow(
-              label: 'Tạm tính:',
-              value: '${draft.subtotal.toStringAsFixed(0)}đ'),
-          const SizedBox(height: 6),
-          _SummaryRow(
               label: 'Giảm giá:',
               value: '-${draft.discount.toStringAsFixed(0)}đ'),
+          const SizedBox(height: 6),
+          _SummaryRow(
+              label: 'Tạm tính:',
+              value: '${draft.subtotal.toStringAsFixed(0)}đ'),
         ],
       ),
     );

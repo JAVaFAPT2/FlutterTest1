@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "387402163402",
+    "project_id": "eshoppe-ee802",
+    "storage_bucket": "eshoppe-ee802.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:387402163402:android:c0988c03a852997b204033",
+        "android_client_info": {
+          "package_name": "com.example.e_shoppe"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDmM7c0U8Zd_GgQt_M_0E6saOYydprbsLA"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

@@ -10,7 +10,6 @@ import '../auth/bloc/auth_bloc.dart';
 import '../../theme/app_theme.dart';
 import '../../shared/widgets/blue_header.dart';
 import '../../shared/widgets/section_card.dart';
-import 'payment_page.dart';
 import '../../shared/responsive.dart';
 import 'package:e_shoppe/features/order/customer_search_page.dart';
 import '../../data/models/user.dart';
@@ -224,10 +223,8 @@ class _CheckoutPageState extends ConsumerState<CheckoutPage> {
                                 .read(orderDraftProvider.notifier)
                                 .setItems(state.items);
 
-                            Navigator.of(context).push(
-                              MaterialPageRoute(
-                                  builder: (_) => const PaymentPage()),
-                            );
+                            Navigator.of(context)
+                                .pushNamed('/order/shipping-info');
                           },
                     child: Text(
                       'Tiếp tục',

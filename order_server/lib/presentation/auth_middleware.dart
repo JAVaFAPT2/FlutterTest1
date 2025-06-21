@@ -8,9 +8,16 @@ Middleware jwtMiddleware() {
   return (innerHandler) {
     return (Request request) async {
       // Public endpoints that don't require auth. Add more as needed.
-      final isPublic = (request.method == 'GET' &&
-              request.url.path.startsWith('products')) ||
-          (request.method == 'POST' && request.url.path.startsWith('orders'));
+      final isPublic =
+          // Public read-only access to products
+          (request.method == 'GET' &&
+                  request.url.path.startsWith('products')) ||
+              // Allow creating orders without auth
+              (request.method == 'POST' &&
+                  request.url.path.startsWith('orders')) ||
+              // Allow listing or viewing orders without auth for now
+              (request.method == 'GET' &&
+                  request.url.path.startsWith('orders'));
 
       if (isPublic) {
         return innerHandler(request);
