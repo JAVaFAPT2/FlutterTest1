@@ -6,11 +6,11 @@ import 'package:e_shoppe/shared/widgets/blue_header.dart';
 import 'package:e_shoppe/shared/widgets/section_card.dart';
 import 'package:e_shoppe/theme/app_theme.dart';
 import 'package:e_shoppe/features/cart/bloc/cart_bloc.dart';
-import 'package:e_shoppe/features/checkout/order_success_page.dart';
 import 'package:e_shoppe/shared/responsive.dart';
 import 'package:e_shoppe/features/order/riverpod/order_draft_provider.dart';
 import 'package:e_shoppe/services/api_client.dart';
 import 'package:e_shoppe/data/models/user.dart';
+import 'package:e_shoppe/features/home/home_shell.dart';
 
 class PaymentPage extends ConsumerStatefulWidget {
   const PaymentPage({super.key});
@@ -118,9 +118,8 @@ class _PaymentPageState extends ConsumerState<PaymentPage> {
                       ref.read(orderDraftProvider.notifier).clear();
 
                       navigator.pushAndRemoveUntil(
-                        MaterialPageRoute(
-                            builder: (_) => const OrderSuccessPage()),
-                        (route) => route.isFirst,
+                        MaterialPageRoute(builder: (_) => const HomeShell()),
+                        (_) => false,
                       );
                     } catch (e) {
                       if (!mounted) return;

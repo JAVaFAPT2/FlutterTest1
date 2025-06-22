@@ -6,6 +6,7 @@ import 'package:e_shoppe/features/cart/bloc/cart_bloc.dart';
 import 'package:e_shoppe/shared/utils/formatter.dart';
 import 'package:e_shoppe/theme/app_theme.dart';
 import 'package:e_shoppe/features/checkout/checkout_page.dart';
+import 'package:e_shoppe/shared/responsive.dart';
 
 class CartPage extends StatelessWidget {
   const CartPage({super.key});
@@ -16,30 +17,35 @@ class CartPage extends StatelessWidget {
       appBar: AppBar(title: const Text('Giỏ hàng')),
       body: BlocBuilder<CartBloc, CartState>(
         builder: (context, state) {
+          // Build main content scroll list.
+          Widget content;
           if (state.items.isEmpty) {
-            return const Center(child: Text('Cart is empty'));
+            content = const Center(child: Text('Cart is empty'));
+          } else {
+            content = ListView.separated(
+              padding: const EdgeInsets.only(
+                  bottom: kBottomNavigationBarHeight + 60),
+              // Extra padding so last item isn't hidden under summary & nav.
+              itemCount: state.items.length,
+              separatorBuilder: (_, __) => const Divider(height: 1),
+              itemBuilder: (context, index) {
+                final item = state.items[index];
+                return _CartListTile(item: item);
+              },
+            );
           }
-          return ListView.separated(
-            itemCount: state.items.length,
-            separatorBuilder: (_, __) => const Divider(height: 1),
-            itemBuilder: (context, index) {
-              final item = state.items[index];
-              return _CartListTile(item: item);
-            },
-          );
-        },
-      ),
-      bottomNavigationBar: BlocBuilder<CartBloc, CartState>(
-        builder: (context, state) {
-          return Container(
+
+          // Summary bar that stays just above the app-wide bottom nav.
+          final summaryBar = Container(
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
             color: AppColors.white,
             child: Row(
               children: [
                 Expanded(
-                    child: Text('Tổng: ${formatCurrency(state.total)}',
-                        style: const TextStyle(
-                            fontSize: 16, fontWeight: FontWeight.bold))),
+                  child: Text('Tổng: ${formatCurrency(state.total)}',
+                      style: const TextStyle(
+                          fontSize: 16, fontWeight: FontWeight.bold)),
+                ),
                 ElevatedButton(
                   onPressed: state.items.isNotEmpty
                       ? () {
@@ -53,6 +59,20 @@ class CartPage extends StatelessWidget {
                 )
               ],
             ),
+          );
+
+          return Stack(
+            children: [
+              content,
+              Positioned(
+                left: 0,
+                right: 0,
+                bottom: Responsive.isMobile(context)
+                    ? kBottomNavigationBarHeight
+                    : 0,
+                child: summaryBar,
+              ),
+            ],
           );
         },
       ),

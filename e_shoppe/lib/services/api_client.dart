@@ -48,7 +48,12 @@ class ApiClient {
 
   dynamic _decode(http.Response r) {
     if (r.body.isEmpty) return null;
-    return jsonDecode(r.body);
+    try {
+      return jsonDecode(r.body);
+    } catch (_) {
+      // Not JSON – return raw string.
+      return r.body;
+    }
   }
 }
 

@@ -7,6 +7,7 @@ import 'package:e_shoppe/data/models/cart_item.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:e_shoppe/features/auth/bloc/auth_bloc.dart';
 import 'package:e_shoppe/data/models/user.dart';
+import 'package:e_shoppe/features/home/home_shell.dart';
 
 class OrderConfirmPage extends ConsumerWidget {
   const OrderConfirmPage({super.key});
@@ -106,9 +107,9 @@ class OrderConfirmPage extends ConsumerWidget {
                     ref.read(orderDraftProvider.notifier).clear();
 
                     if (!context.mounted) return;
-                    Navigator.of(context).pushNamedAndRemoveUntil(
-                      '/order/success',
-                      (route) => route.isFirst,
+                    Navigator.of(context).pushAndRemoveUntil(
+                      MaterialPageRoute(builder: (_) => const HomeShell()),
+                      (_) => false,
                     );
                   } catch (e) {
                     // ensure loading dialog is closed

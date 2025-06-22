@@ -10,6 +10,8 @@ class PostgresStore implements ProductRepository, OrderRepository {
 
   PostgresStore(this._conn);
 
+  PostgreSQLConnection get conn => _conn;
+
   static Future<PostgresStore> connectFromEnv() async {
     final host = const String.fromEnvironment(
       'PG_HOST',

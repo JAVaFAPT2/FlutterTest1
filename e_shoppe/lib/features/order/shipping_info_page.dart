@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:e_shoppe/features/order/order_app_bar.dart';
 import 'package:e_shoppe/features/order/riverpod/order_draft_provider.dart';
+import 'package:geocoding/geocoding.dart';
 
 class ShippingInfoPage extends ConsumerStatefulWidget {
   const ShippingInfoPage({super.key});
@@ -126,6 +127,29 @@ class _ShippingInfoPageState extends ConsumerState<ShippingInfoPage> {
             label: 'Địa chỉ',
             controller: _addressCtrl,
             onChanged: (v) => notifier.setAddress(v),
+            onEditingComplete: () async {
+              final addr = _addressCtrl.text.trim();
+              if (addr.isEmpty) return;
+              try {
+                final locs = await locationFromAddress(addr);
+                if (locs.isNotEmpty) {
+                  final placemarks = await placemarkFromCoordinates(
+                      locs.first.latitude, locs.first.longitude);
+                  if (placemarks.isNotEmpty) {
+                    final pm = placemarks.first;
+                    if (pm.country != null && pm.country!.isNotEmpty) {
+                      notifier.setCountry(pm.country!);
+                    }
+                    if (pm.administrativeArea != null &&
+                        pm.administrativeArea!.isNotEmpty) {
+                      notifier.setCity(pm.administrativeArea!);
+                    }
+                  }
+                }
+              } catch (_) {
+                // silently ignore geocode failures
+              }
+            },
           ),
           _TextRow(
             label: 'Ghi chú',
@@ -297,12 +321,14 @@ class _TextRow extends StatelessWidget {
   final ValueChanged<String>? onChanged;
   final TextInputType? keyboardType;
   final int? maxLines;
+  final VoidCallback? onEditingComplete;
   const _TextRow({
     required this.label,
     required this.controller,
     this.onChanged,
     this.keyboardType,
     this.maxLines,
+    this.onEditingComplete,
   });
   @override
   Widget build(BuildContext context) {
@@ -321,6 +347,7 @@ class _TextRow extends StatelessWidget {
         style: const TextStyle(fontSize: 12),
         onChanged: onChanged,
         maxLines: maxLines,
+        onEditingComplete: onEditingComplete,
       ),
     );
   }

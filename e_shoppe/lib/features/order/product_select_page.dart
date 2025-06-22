@@ -100,10 +100,16 @@ class _ProductSelectPageState extends ConsumerState<ProductSelectPage> {
                         onPressed: () {
                           final item = CartItem(product: p, quantity: 1);
                           ref.read(orderDraftProvider.notifier).addItem(item);
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(
-                                content: Text('Đã thêm vào đơn hàng')),
-                          );
+                          ScaffoldMessenger.of(context)
+                            ..hideCurrentSnackBar()
+                            ..showSnackBar(
+                              const SnackBar(
+                                content: Text('Đã thêm vào đơn hàng'),
+                                behavior: SnackBarBehavior.floating,
+                                margin: EdgeInsets.fromLTRB(16, 0, 16, 80),
+                                duration: Duration(seconds: 2),
+                              ),
+                            );
                         },
                       ),
                     );

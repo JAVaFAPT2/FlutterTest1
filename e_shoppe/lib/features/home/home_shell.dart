@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:e_shoppe/shared/responsive.dart';
 import 'package:e_shoppe/features/search/search_page.dart';
 import 'package:e_shoppe/features/cart/cart_page.dart';
 import 'package:e_shoppe/features/profile/profile_page.dart';
 import 'package:e_shoppe/features/cart/bloc/cart_bloc.dart';
 import 'package:e_shoppe/features/order/order_list_page.dart';
+import 'package:e_shoppe/theme/app_theme.dart';
 
 class HomeShell extends StatefulWidget {
   const HomeShell({super.key});
@@ -71,7 +71,10 @@ class _HomeShellState extends State<HomeShell> {
             icon: Icon(Icons.person), label: 'Profile'),
       ];
 
-      if (Responsive.isTablet(context) || Responsive.isDesktop(context)) {
+      // Use side NavigationRail only on sufficiently wide screens.
+      final showRail = MediaQuery.of(context).size.width >= 700;
+
+      if (showRail) {
         // Side rail
         return Scaffold(
           body: Row(
@@ -105,6 +108,12 @@ class _HomeShellState extends State<HomeShell> {
           currentIndex: _index,
           onTap: _onTap,
           items: navItems,
+          backgroundColor: AppColors.white,
+          type: BottomNavigationBarType.fixed,
+          selectedItemColor: AppColors.cyan,
+          unselectedItemColor: AppColors.darkGray,
+          showUnselectedLabels: true,
+          elevation: 4,
         ),
       );
     });

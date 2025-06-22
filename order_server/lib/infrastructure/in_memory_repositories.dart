@@ -14,6 +14,14 @@ class InMemoryStore implements ProductRepository, OrderRepository {
     _addProduct('Plant', 5500000);
     _addProduct('Watch', 450000);
     _addProduct('Bag', 1200000);
+
+    // Extra products for more realistic catalog
+    _addProduct('Laptop', 18500000);
+    _addProduct('Smartphone', 12500000);
+    _addProduct('Headphones', 2500000);
+    _addProduct('Camera', 21500000);
+    _addProduct('Sneakers', 1800000);
+    _addProduct('T-Shirt', 350000);
   }
 
   void _addProduct(String name, double price) {
