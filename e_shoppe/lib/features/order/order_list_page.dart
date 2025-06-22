@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'order_app_bar.dart';
+import 'package:e_shoppe/features/order/order_app_bar.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:e_shoppe/data/repositories/order_repository.dart';
 
@@ -73,7 +73,7 @@ class OrderListPage extends ConsumerWidget {
                               borderRadius: BorderRadius.circular(6),
                               boxShadow: [
                                 BoxShadow(
-                                    color: Colors.grey.withOpacity(0.1),
+                                    color: Colors.grey.withAlpha(26),
                                     blurRadius: 4,
                                     offset: const Offset(0, 2))
                               ],
@@ -178,7 +178,7 @@ class _StatusChip extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
       decoration: BoxDecoration(
-        color: _color().withOpacity(0.1),
+        color: _color().withAlpha(26),
         borderRadius: BorderRadius.circular(12),
       ),
       child: Text(

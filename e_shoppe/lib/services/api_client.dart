@@ -1,7 +1,7 @@
 import 'dart:convert';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:http/http.dart' as http;
-import '../config.dart';
+import 'package:e_shoppe/config.dart';
 
 class ApiClient {
   ApiClient({http.Client? client}) : _client = client ?? http.Client();

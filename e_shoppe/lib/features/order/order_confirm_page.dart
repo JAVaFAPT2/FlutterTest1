@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:e_shoppe/features/order/riverpod/order_draft_provider.dart';
-import 'order_app_bar.dart';
+import 'package:e_shoppe/features/order/order_app_bar.dart';
 import 'package:e_shoppe/data/repositories/order_repository.dart';
 import 'package:e_shoppe/data/models/cart_item.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -99,17 +99,17 @@ class OrderConfirmPage extends ConsumerWidget {
                         );
 
                     await repo.createOrder(customer, draft.items);
+                    if (!context.mounted) return;
                     // dismiss loading dialog before navigation
-                    if (context.mounted) Navigator.of(context).pop();
+                    Navigator.of(context).pop();
 
                     ref.read(orderDraftProvider.notifier).clear();
 
-                    if (context.mounted) {
-                      Navigator.of(context).pushNamedAndRemoveUntil(
-                        '/order/success',
-                        ModalRoute.withName('/orders'),
-                      );
-                    }
+                    if (!context.mounted) return;
+                    Navigator.of(context).pushNamedAndRemoveUntil(
+                      '/order/success',
+                      (route) => route.isFirst,
+                    );
                   } catch (e) {
                     // ensure loading dialog is closed
                     if (context.mounted) Navigator.of(context).pop();
@@ -126,7 +126,7 @@ class OrderConfirmPage extends ConsumerWidget {
               width: 112,
               height: 2,
               decoration: BoxDecoration(
-                  color: Color(0xFF595959),
+                  color: const Color(0xFF595959),
                   borderRadius: BorderRadius.circular(30)),
             ),
           ],
@@ -196,8 +196,8 @@ class _ProductTableHeader extends StatelessWidget {
     return Container(
       color: Colors.white,
       padding: const EdgeInsets.symmetric(vertical: 6, horizontal: 8),
-      child: Row(
-        children: const [
+      child: const Row(
+        children: [
           SizedBox(width: 60, child: Text('Hình', style: _headerStyle)),
           Expanded(child: Text('Tên sản phẩm', style: _headerStyle)),
           SizedBox(

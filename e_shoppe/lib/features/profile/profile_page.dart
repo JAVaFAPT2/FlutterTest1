@@ -1,20 +1,17 @@
-import 'dart:io';
 import 'dart:convert';
-import 'dart:typed_data';
 import 'package:flutter/foundation.dart';
 
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:firebase_storage/firebase_storage.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import '../demo/riverpod_counter_page.dart';
+import 'package:e_shoppe/features/demo/riverpod_counter_page.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import '../auth/bloc/auth_bloc.dart';
-import '../../data/repositories/auth_repository.dart';
-import '../../services/notification_service.dart';
+import 'package:e_shoppe/features/auth/bloc/auth_bloc.dart';
+import 'package:e_shoppe/data/repositories/auth_repository.dart';
+import 'package:e_shoppe/services/notification_service.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../../theme/theme_provider.dart';
-import '../demo/riverpod_cart_page.dart';
+import 'package:e_shoppe/theme/theme_provider.dart';
+import 'package:e_shoppe/features/demo/riverpod_cart_page.dart';
 
 class ProfilePage extends ConsumerStatefulWidget {
   const ProfilePage({super.key});
@@ -27,8 +24,6 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
   final ImagePicker _picker = ImagePicker();
   String? _avatarUrl;
   Uint8List? _avatarBytes;
-  bool _uploading = false;
-  double? _progress;
 
   late final TextEditingController _nameCtrl;
   late final TextEditingController _addressCtrl;
@@ -40,10 +35,6 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
     final XFile? picked =
         await _picker.pickImage(source: ImageSource.gallery, imageQuality: 85);
     if (picked == null) return;
-    setState(() {
-      _uploading = true;
-      _progress = null;
-    });
 
     // For free plan without Storage: save as Base64 directly
     try {
@@ -56,17 +47,16 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
             .doc(uid)
             .set({'avatarBase64': b64}, SetOptions(merge: true));
       }
-      if (mounted)
+      if (mounted) {
         setState(() {
           _avatarBytes = bytes;
           _avatarUrl = null;
-          _uploading = false;
         });
+      }
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context)
             .showSnackBar(SnackBar(content: Text('Upload failed: $e')));
-        setState(() => _uploading = false);
       }
     }
   }
@@ -124,12 +114,10 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
         name: _nameCtrl.text.trim(),
         address: _addressCtrl.text.trim(),
         phone: _phoneCtrl.text.trim());
-    if (updated != null) {
+    if (updated != null && mounted) {
       context.read<AuthBloc>().add(LoggedIn(updated));
-      if (mounted) {
-        ScaffoldMessenger.of(context)
-            .showSnackBar(const SnackBar(content: Text('Profile saved')));
-      }
+      ScaffoldMessenger.of(context)
+          .showSnackBar(const SnackBar(content: Text('Profile saved')));
     }
   }
 
@@ -156,13 +144,11 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
                     : null,
               ),
               const SizedBox(height: 20),
-              _uploading
-                  ? const CircularProgressIndicator()
-                  : ElevatedButton.icon(
-                      onPressed: _pickAndUpload,
-                      icon: const Icon(Icons.image),
-                      label: const Text('Change Avatar'),
-                    ),
+              ElevatedButton.icon(
+                onPressed: _pickAndUpload,
+                icon: const Icon(Icons.image),
+                label: const Text('Change Avatar'),
+              ),
               const SizedBox(height: 12),
               if (kDebugMode) ...[
                 ElevatedButton(

@@ -51,7 +51,6 @@ class AppTheme {
       seedColor: AppColors.cyan,
       brightness: Brightness.dark,
     ).copyWith(
-      background: AppColors.darkBg,
       surface: AppColors.darkSurface,
       primary: AppColors.cyan,
       secondary: AppColors.green,
@@ -63,7 +62,6 @@ class AppTheme {
       scaffoldBackgroundColor: AppColors.darkBg,
       canvasColor: AppColors.darkSurface,
       cardColor: AppColors.darkSurface,
-      dialogBackgroundColor: AppColors.darkSurface,
       colorScheme: scheme,
       snackBarTheme:
           const SnackBarThemeData(backgroundColor: AppColors.darkGray),
@@ -86,7 +84,7 @@ class AppTheme {
         titleMedium: TextStyle(
             fontSize: 16, fontWeight: FontWeight.bold, color: Colors.white),
         bodyMedium: TextStyle(fontSize: 14, color: Colors.white70),
-      ),
+      ), dialogTheme: const DialogThemeData(backgroundColor: AppColors.darkSurface),
     );
   }
 }

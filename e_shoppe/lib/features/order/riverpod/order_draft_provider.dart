@@ -188,6 +188,10 @@ class OrderDraftNotifier extends StateNotifier<OrderDraft> {
     _lookupZipAsync(code);
   }
 
+  void setNote(String? note) {
+    state = state.copyWith(note: note);
+  }
+
   Future<void> _lookupZipAsync(String code) async {
     try {
       final uri = Uri.https('nominatim.openstreetmap.org', '/search', {

@@ -2,10 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:e_shoppe/data/models/user.dart';
 import 'package:e_shoppe/data/models/cart_item.dart';
-import 'riverpod/order_draft_provider.dart';
-import 'customer_search_page.dart';
+import 'package:e_shoppe/features/order/riverpod/order_draft_provider.dart';
+import 'package:e_shoppe/features/order/customer_search_page.dart';
 
-import 'order_app_bar.dart';
+import 'package:e_shoppe/features/order/order_app_bar.dart';
 
 class OrderCreatePage extends ConsumerStatefulWidget {
   const OrderCreatePage({super.key});
@@ -33,12 +33,12 @@ class _OrderCreatePageState extends ConsumerState<OrderCreatePage> {
         children: [
           _SearchCustomerField(ref: ref),
           const SizedBox(height: 12),
-          _SectionTitle(title: 'Thông tin khách hàng'),
+          const _SectionTitle(title: 'Thông tin khách hàng'),
           const _CustomerInfoCard(),
           const SizedBox(height: 12),
           const _ProductListCard(),
           const SizedBox(height: 12),
-          _SummaryCard(),
+          const _SummaryCard(),
         ],
       ),
       bottomNavigationBar: Padding(

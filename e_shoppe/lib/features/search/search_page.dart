@@ -3,11 +3,11 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:e_shoppe/features/catalog/product_detail_page.dart';
 
-import '../../data/models/product.dart';
-import 'riverpod/search_notifier.dart';
-import '../../shared/widgets/blue_header.dart';
-import '../../shared/widgets/search_bar.dart';
-import '../../shared/responsive.dart';
+import 'package:e_shoppe/data/models/product.dart';
+import 'package:e_shoppe/features/search/riverpod/search_notifier.dart';
+import 'package:e_shoppe/shared/widgets/blue_header.dart';
+import 'package:e_shoppe/shared/widgets/search_bar.dart';
+import 'package:e_shoppe/shared/responsive.dart';
 
 class SearchPage extends ConsumerWidget {
   const SearchPage({super.key});

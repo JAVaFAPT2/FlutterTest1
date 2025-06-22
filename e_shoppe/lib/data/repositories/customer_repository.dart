@@ -1,5 +1,5 @@
 import 'package:dio/dio.dart';
-import '../models/user.dart';
+import 'package:e_shoppe/data/models/user.dart';
 
 class CustomerRepository {
   CustomerRepository({Dio? dio}) : _dio = dio ?? Dio();

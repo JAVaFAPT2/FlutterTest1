@@ -3,7 +3,7 @@ import 'dart:async';
 import 'package:firebase_auth/firebase_auth.dart' as fb;
 import 'package:cloud_firestore/cloud_firestore.dart';
 
-import '../models/user.dart';
+import 'package:e_shoppe/data/models/user.dart';
 
 class AuthRepository {
   final fb.FirebaseAuth _auth = fb.FirebaseAuth.instance;

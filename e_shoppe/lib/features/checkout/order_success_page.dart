@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
-import '../../shared/widgets/blue_header.dart';
-import '../../theme/app_theme.dart';
+import 'package:e_shoppe/shared/widgets/blue_header.dart';
+import 'package:e_shoppe/theme/app_theme.dart';
 
 class OrderSuccessPage extends StatelessWidget {
   const OrderSuccessPage({super.key});

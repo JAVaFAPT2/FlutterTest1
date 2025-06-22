@@ -115,13 +115,13 @@ flutter:
 
 # flutter_launcher_icons configuration
 flutter_launcher_icons:
-  image_path: assets\icons\a30b918a266366a5b93ce142381d4aee59e8c1f8.png
+  image_path: assets/icons/a30b918a266366a5b93ce142381d4aee59e8c1f8.png
   android: "ic_launcher"
   ios: true
 
 # Splash screen configuration
 flutter_native_splash:
   color: "#ffffff"
-  image: assets\icons\a30b918a266366a5b93ce142381d4aee59e8c1f8.png
+  image: assets/icons/a30b918a266366a5b93ce142381d4aee59e8c1f8.png
   android: true
   ios: true

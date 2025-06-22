@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import '../../shared/responsive.dart';
-import '../search/search_page.dart';
-import '../cart/cart_page.dart';
-import '../profile/profile_page.dart';
-import '../cart/bloc/cart_bloc.dart';
-import '../order/order_list_page.dart';
+import 'package:e_shoppe/shared/responsive.dart';
+import 'package:e_shoppe/features/search/search_page.dart';
+import 'package:e_shoppe/features/cart/cart_page.dart';
+import 'package:e_shoppe/features/profile/profile_page.dart';
+import 'package:e_shoppe/features/cart/bloc/cart_bloc.dart';
+import 'package:e_shoppe/features/order/order_list_page.dart';
 
 class HomeShell extends StatefulWidget {
   const HomeShell({super.key});

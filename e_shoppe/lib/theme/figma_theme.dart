@@ -51,7 +51,6 @@ ThemeData figmaLightTheme() {
     colorScheme: ColorScheme.fromSeed(seedColor: FigmaColors.accent).copyWith(
       primary: FigmaColors.accent,
       surface: FigmaColors.white,
-      background: FigmaColors.white,
     ),
     textTheme: const TextTheme(
       titleLarge: FigmaTextStyles.header2,

@@ -2,11 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'dart:math';
 
-import '../../data/models/product.dart';
-import '../cart/riverpod/cart_notifier.dart';
+import 'package:e_shoppe/data/models/product.dart';
+import 'package:e_shoppe/features/cart/riverpod/cart_notifier.dart';
 
 class RiverpodCartPage extends ConsumerWidget {
-  const RiverpodCartPage({Key? key}) : super(key: key);
+  const RiverpodCartPage({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {

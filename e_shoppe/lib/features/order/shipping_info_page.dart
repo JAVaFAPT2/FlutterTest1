@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'order_app_bar.dart';
-import 'riverpod/order_draft_provider.dart';
+import 'package:e_shoppe/features/order/order_app_bar.dart';
+import 'package:e_shoppe/features/order/riverpod/order_draft_provider.dart';
 
 class ShippingInfoPage extends ConsumerStatefulWidget {
   const ShippingInfoPage({super.key});
@@ -130,7 +130,7 @@ class _ShippingInfoPageState extends ConsumerState<ShippingInfoPage> {
           _TextRow(
             label: 'Ghi chú',
             controller: TextEditingController(text: draft.note ?? ''),
-            onChanged: (v) => notifier.state = draft.copyWith(note: v),
+            onChanged: notifier.setNote,
             maxLines: 2,
           ),
           const _GreenHeader(title: 'Khuyến mãi'),
@@ -218,7 +218,7 @@ class _ShippingInfoPageState extends ConsumerState<ShippingInfoPage> {
               width: 112,
               height: 2,
               decoration: BoxDecoration(
-                color: Color(0xFF595959),
+                color: const Color(0xFF595959),
                 borderRadius: BorderRadius.circular(30),
               ),
             ),

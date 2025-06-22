@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-import '../../data/repositories/auth_repository.dart';
-import 'bloc/auth_bloc.dart';
-import 'bloc/register_bloc.dart';
+import 'package:e_shoppe/data/repositories/auth_repository.dart';
+import 'package:e_shoppe/features/auth/bloc/auth_bloc.dart';
+import 'package:e_shoppe/features/auth/bloc/register_bloc.dart';
 
 class RegisterPage extends StatelessWidget {
   const RegisterPage({super.key});

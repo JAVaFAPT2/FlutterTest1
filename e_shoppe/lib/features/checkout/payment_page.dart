@@ -2,15 +2,15 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../../shared/widgets/blue_header.dart';
-import '../../shared/widgets/section_card.dart';
-import '../../theme/app_theme.dart';
-import '../cart/bloc/cart_bloc.dart';
-import 'order_success_page.dart';
-import '../../shared/responsive.dart';
-import '../order/riverpod/order_draft_provider.dart';
-import '../../services/api_client.dart';
-import '../../data/models/user.dart';
+import 'package:e_shoppe/shared/widgets/blue_header.dart';
+import 'package:e_shoppe/shared/widgets/section_card.dart';
+import 'package:e_shoppe/theme/app_theme.dart';
+import 'package:e_shoppe/features/cart/bloc/cart_bloc.dart';
+import 'package:e_shoppe/features/checkout/order_success_page.dart';
+import 'package:e_shoppe/shared/responsive.dart';
+import 'package:e_shoppe/features/order/riverpod/order_draft_provider.dart';
+import 'package:e_shoppe/services/api_client.dart';
+import 'package:e_shoppe/data/models/user.dart';
 
 class PaymentPage extends ConsumerStatefulWidget {
   const PaymentPage({super.key});
@@ -85,10 +85,14 @@ class _PaymentPageState extends ConsumerState<PaymentPage> {
               child: Center(
                 child: GestureDetector(
                   onTap: () async {
+                    final navigator = Navigator.of(context);
+                    final messenger = ScaffoldMessenger.of(context);
+                    final cartBloc = context.read<CartBloc>();
+
                     final draft = ref.read(orderDraftProvider);
                     if (draft.items.isEmpty) return;
                     final api = ref.read(apiProvider);
-                    ScaffoldMessenger.of(context).showSnackBar(
+                    messenger.showSnackBar(
                         const SnackBar(content: Text('Đang gửi đơn hàng...')));
                     try {
                       final customer = draft.customer ??
@@ -110,16 +114,17 @@ class _PaymentPageState extends ConsumerState<PaymentPage> {
                       if (!mounted) return;
 
                       // Clear local state
-                      context.read<CartBloc>().add(const CartCleared());
+                      cartBloc.add(const CartCleared());
                       ref.read(orderDraftProvider.notifier).clear();
 
-                      Navigator.of(context).pushAndRemoveUntil(
+                      navigator.pushAndRemoveUntil(
                         MaterialPageRoute(
                             builder: (_) => const OrderSuccessPage()),
                         (route) => route.isFirst,
                       );
                     } catch (e) {
-                      ScaffoldMessenger.of(context).showSnackBar(
+                      if (!mounted) return;
+                      messenger.showSnackBar(
                           SnackBar(content: Text('Gửi đơn thất bại: $e')));
                     }
                   },

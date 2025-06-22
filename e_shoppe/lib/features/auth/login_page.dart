@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-import '../../data/repositories/auth_repository.dart';
-import 'bloc/auth_bloc.dart';
-import 'bloc/login_bloc.dart';
-import 'register_page.dart';
+import 'package:e_shoppe/data/repositories/auth_repository.dart';
+import 'package:e_shoppe/features/auth/bloc/auth_bloc.dart';
+import 'package:e_shoppe/features/auth/bloc/login_bloc.dart';
+import 'package:e_shoppe/features/auth/register_page.dart';
 
 class LoginPage extends StatelessWidget {
   const LoginPage({super.key});

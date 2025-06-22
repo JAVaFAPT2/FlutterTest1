@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import '../../theme/app_theme.dart';
+import 'package:e_shoppe/theme/app_theme.dart';
 
 class SearchBarField extends StatelessWidget {
   const SearchBarField({super.key, required this.hint, this.onChanged});

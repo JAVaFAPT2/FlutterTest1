@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../../data/models/product.dart';
-import '../../data/repositories/product_repository.dart';
-import '../../theme/figma_theme.dart';
+import 'package:e_shoppe/data/models/product.dart';
+import 'package:e_shoppe/data/repositories/product_repository.dart';
+import 'package:e_shoppe/theme/figma_theme.dart';
 
 final _productsProvider = FutureProvider<List<Product>>((ref) {
   final repo = ref.read(productRepositoryProvider);
@@ -58,7 +58,7 @@ class _ProductCard extends StatelessWidget {
       child: Ink(
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(8),
-          border: Border.all(color: FigmaColors.gray.withOpacity(0.3)),
+          border: Border.all(color: FigmaColors.gray.withAlpha(77)),
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -72,7 +72,7 @@ class _ProductCard extends StatelessWidget {
                   product.imageUrl,
                   fit: BoxFit.cover,
                   errorBuilder: (_, __, ___) => Container(
-                    color: FigmaColors.gray.withOpacity(0.2),
+                    color: FigmaColors.gray.withAlpha(51),
                     alignment: Alignment.center,
                     child: const Icon(Icons.image_not_supported_outlined),
                   ),

@@ -10,8 +10,9 @@ Future<void> testExecutable(FutureOr<void> Function() testMain) async {
   TestWidgetsFlutterBinding.ensureInitialized();
 
   // Stub file_picker method channel to avoid plugin registration errors.
-  const MethodChannel('plugins.flutter.io/file_picker')
-      .setMockMethodCallHandler((_) async => null);
+  const channel = MethodChannel('plugins.flutter.io/file_picker');
+  TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
+      .setMockMethodCallHandler(channel, (call) async => null);
 
   await testMain();
 }

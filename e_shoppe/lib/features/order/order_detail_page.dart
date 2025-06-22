@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'order_app_bar.dart';
+import 'package:e_shoppe/features/order/order_app_bar.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:e_shoppe/data/repositories/order_repository.dart';
 
@@ -56,12 +56,16 @@ class _OrderDetailPageState extends ConsumerState<OrderDetailPage> {
       await ref
           .read(orderRepositoryProvider)
           .updateStatus(_order!['id'], _status);
-      if (mounted) Navigator.of(context).pop();
-      if (mounted) Navigator.of(context).pop();
+      if (mounted) {
+        Navigator.of(context).pop();
+        Navigator.of(context).pop();
+      }
     } catch (e) {
-      if (mounted) Navigator.of(context).pop();
-      ScaffoldMessenger.of(context)
-          .showSnackBar(const SnackBar(content: Text('Cập nhật thất bại')));
+      if (mounted) {
+        Navigator.of(context).pop();
+        ScaffoldMessenger.of(context)
+            .showSnackBar(const SnackBar(content: Text('Cập nhật thất bại')));
+      }
     }
   }
 
@@ -108,7 +112,8 @@ class _OrderDetailPageState extends ConsumerState<OrderDetailPage> {
       padding: const EdgeInsets.all(12),
       children: [
         const _SectionHeader('Thông tin đơn hàng'),
-        _InfoRow(label: 'Mã đơn:', value: _order!['id'] ?? ''),
+        _InfoRow(
+            label: 'Mã đơn:', value: _order!['id'] ?? '', color: Colors.blue),
         _InfoRow(label: 'Sản phẩm:', value: items.length.toString()),
         _InfoRow(
             label: 'Ngày lập:',

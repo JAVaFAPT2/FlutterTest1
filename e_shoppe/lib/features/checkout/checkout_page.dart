@@ -4,19 +4,19 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../../data/models/cart_item.dart';
-import '../cart/bloc/cart_bloc.dart';
-import '../auth/bloc/auth_bloc.dart';
-import '../../theme/app_theme.dart';
-import '../../shared/widgets/blue_header.dart';
-import '../../shared/widgets/section_card.dart';
-import '../../shared/responsive.dart';
+import 'package:e_shoppe/data/models/cart_item.dart';
+import 'package:e_shoppe/features/cart/bloc/cart_bloc.dart';
+import 'package:e_shoppe/features/auth/bloc/auth_bloc.dart';
+import 'package:e_shoppe/theme/app_theme.dart';
+import 'package:e_shoppe/shared/widgets/blue_header.dart';
+import 'package:e_shoppe/shared/widgets/section_card.dart';
+import 'package:e_shoppe/shared/responsive.dart';
 import 'package:e_shoppe/features/order/customer_search_page.dart';
-import '../../data/models/user.dart';
-import '../order/riverpod/order_draft_provider.dart';
-import '../../data/repositories/auth_repository.dart';
-import '../../shared/utils/formatter.dart';
-import '../../shared/spacing.dart';
+import 'package:e_shoppe/data/models/user.dart';
+import 'package:e_shoppe/features/order/riverpod/order_draft_provider.dart';
+import 'package:e_shoppe/data/repositories/auth_repository.dart';
+import 'package:e_shoppe/shared/utils/formatter.dart';
+import 'package:e_shoppe/shared/spacing.dart';
 
 class CheckoutPage extends ConsumerStatefulWidget {
   const CheckoutPage({super.key});
@@ -36,6 +36,7 @@ class _CheckoutPageState extends ConsumerState<CheckoutPage> {
     super.initState();
     // Defer until widgets are built and Providers are available.
     Future.microtask(() {
+      if (!mounted) return;
       final cartBloc = context.read<CartBloc>();
       if (cartBloc.state.items.isEmpty) {
         final draft = ref.read(orderDraftProvider);
@@ -105,17 +106,16 @@ class _CheckoutPageState extends ConsumerState<CheckoutPage> {
                           ),
                           child: GestureDetector(
                             onTap: () async {
-                              final selected = await Navigator.of(context).push(
+                              // Capture context-dependent objects before the async gap.
+                              final navigator = Navigator.of(context);
+
+                              final selected = await navigator.push(
                                 MaterialPageRoute(
                                     builder: (_) => const CustomerSearchPage()),
                               );
+                              if (!mounted) return;
                               if (selected != null && selected is User) {
-                                // For now just show snackbar; integration can follow
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  SnackBar(
-                                      content: Text(
-                                          'Đã chọn khách: ${selected.name}')),
-                                );
+                                // No messenger needed after refactor; remove to avoid unused_local_variable warning.
                               }
                             },
                             behavior: HitTestBehavior.opaque,
@@ -198,15 +198,19 @@ class _CheckoutPageState extends ConsumerState<CheckoutPage> {
                     onTap: state.items.isEmpty
                         ? null
                         : () async {
-                            // update profile with current inputs
+                            // Capture dependencies before any await.
+                            final navigator = Navigator.of(context);
                             final repo = context.read<AuthRepository>();
+                            final authBloc = context.read<AuthBloc>();
+
                             final updated = await repo.updateProfile(
                               name: _nameController.text.trim(),
                               address: _addressController.text.trim(),
                               phone: _phoneController.text.trim(),
                             );
+                            if (!mounted) return;
                             if (updated != null) {
-                              context.read<AuthBloc>().add(LoggedIn(updated));
+                              authBloc.add(LoggedIn(updated));
                             }
                             final draftNotifier =
                                 ref.read(orderDraftProvider.notifier);
@@ -224,8 +228,7 @@ class _CheckoutPageState extends ConsumerState<CheckoutPage> {
                             // Sync cart items into draft
                             draftNotifier.setItems(state.items);
 
-                            Navigator.of(context)
-                                .pushNamed('/order/shipping-info');
+                            navigator.pushNamed('/order/shipping-info');
                           },
                     child: Text(
                       'Tiếp tục',
@@ -349,19 +352,6 @@ class _CustomerInfoContent extends StatelessWidget {
               autocorrect: false,
             ),
           ),
-        ],
-      ),
-    );
-  }
-
-  Widget _infoRow({required IconData icon, required String text}) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-      child: Row(
-        children: [
-          Icon(icon, color: Colors.green),
-          const SizedBox(width: 12),
-          Expanded(child: Text(text.isEmpty ? '-' : text)),
         ],
       ),
     );

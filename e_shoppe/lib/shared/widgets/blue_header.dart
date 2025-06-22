@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import '../../theme/app_theme.dart';
+import 'package:e_shoppe/theme/app_theme.dart';
 
 class BlueHeader extends StatelessWidget implements PreferredSizeWidget {
   const BlueHeader({

@@ -1,8 +1,8 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../../services/api_client.dart';
-import '../models/cart_item.dart';
-import '../models/user.dart';
+import 'package:e_shoppe/services/api_client.dart';
+import 'package:e_shoppe/data/models/cart_item.dart';
+import 'package:e_shoppe/data/models/user.dart';
 
 class OrderRepository {
   OrderRepository(this._api);

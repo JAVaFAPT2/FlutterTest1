@@ -1,7 +1,7 @@
-import '../models/product.dart';
+import 'package:e_shoppe/data/models/product.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../../services/api_client.dart';
+import 'package:e_shoppe/services/api_client.dart';
 
 class ProductRepository {
   ProductRepository(this._api);

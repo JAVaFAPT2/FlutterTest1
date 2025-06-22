@@ -1,8 +1,8 @@
 import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
 
-import '../../../data/models/user.dart';
-import '../../../data/repositories/auth_repository.dart';
+import 'package:e_shoppe/data/models/user.dart';
+import 'package:e_shoppe/data/repositories/auth_repository.dart';
 
 part 'auth_event.dart';
 part 'auth_state.dart';

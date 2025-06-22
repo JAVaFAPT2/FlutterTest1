@@ -2,11 +2,11 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-import '../../data/models/product.dart';
-import '../cart/bloc/cart_bloc.dart';
-import '../cart/cart_page.dart';
-import '../../shared/utils/formatter.dart';
-import '../../theme/app_theme.dart';
+import 'package:e_shoppe/data/models/product.dart';
+import 'package:e_shoppe/features/cart/bloc/cart_bloc.dart';
+import 'package:e_shoppe/features/cart/cart_page.dart';
+import 'package:e_shoppe/shared/utils/formatter.dart';
+import 'package:e_shoppe/theme/app_theme.dart';
 
 class ProductDetailPage extends StatelessWidget {
   const ProductDetailPage({super.key, required this.product});

@@ -1,6 +1,6 @@
 import 'package:equatable/equatable.dart';
 
-import 'product.dart';
+import 'package:e_shoppe/data/models/product.dart';
 
 class CartItem extends Equatable {
   const CartItem({

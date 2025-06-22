@@ -60,14 +60,14 @@ class NotificationService {
 
     // Show a local notification so the user sees an alert when app is in foreground.
     final details = NotificationDetails(
-      android: AndroidNotificationDetails(
+      android: const AndroidNotificationDetails(
         'default',
         'Default',
         channelDescription: 'General notifications',
         importance: Importance.max,
         priority: Priority.high,
         icon: '@mipmap/ic_launcher',
-        largeIcon: const DrawableResourceAndroidBitmap('@mipmap/ic_launcher'),
+        largeIcon: DrawableResourceAndroidBitmap('@mipmap/ic_launcher'),
       ),
       iOS: DarwinNotificationDetails(
         attachments: msg.notification?.apple?.imageUrl != null

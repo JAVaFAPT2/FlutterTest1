@@ -4,8 +4,8 @@ import 'package:e_shoppe/data/models/cart_item.dart';
 import 'package:e_shoppe/data/models/product.dart';
 import 'package:e_shoppe/data/repositories/product_repository.dart';
 
-import 'order_app_bar.dart';
-import 'riverpod/order_draft_provider.dart';
+import 'package:e_shoppe/features/order/order_app_bar.dart';
+import 'package:e_shoppe/features/order/riverpod/order_draft_provider.dart';
 
 class ProductSelectPage extends ConsumerStatefulWidget {
   const ProductSelectPage({super.key});

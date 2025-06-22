@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:e_shoppe/data/models/user.dart';
 import 'package:e_shoppe/data/repositories/customer_repository.dart';
-import 'order_app_bar.dart';
+import 'package:e_shoppe/features/order/order_app_bar.dart';
 
 class CustomerSearchPage extends ConsumerStatefulWidget {
   const CustomerSearchPage({super.key});

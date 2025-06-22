@@ -1,8 +1,8 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:rxdart/rxdart.dart';
 
-import '../../../data/models/product.dart';
-import '../../../data/repositories/product_repository.dart';
+import 'package:e_shoppe/data/models/product.dart';
+import 'package:e_shoppe/data/repositories/product_repository.dart';
 
 enum SearchStatus { initial, loading, success, failure }
 
